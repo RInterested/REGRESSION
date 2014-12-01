@@ -23,3 +23,32 @@ mystandardizeddata <- as.data.frame(scale(mysubsetdata, center=FALSE, scale=sdva
 var(mystandardizeddata, use = "pairwise.complete.obs") # Note that the variance-covariance matrix = correlation matrix
 carter.model2 <- lm(CARFEEL3 ~ INC + AGE + PARTYID, data=mystandardizeddata) 
 summary(carter.model2)
+
+# Now let's create our intercept dummy variables.
+mysubsetdata <- subset(mydata, RACE == 1 | RACE == 2) # This gets rid of the "other" category in race.
+# The method below creates something called a "factor," and then converts that factor into a real number by adding a zero to it. 
+white <- (mysubsetdata$RACE==1)+0
+black <- (mysubsetdata$RACE==2)+0
+races <- cbind(white,black)
+races # Prints out the race data
+
+# Now we create the slope dummy variables and set up our linear regression model.
+wpartyid=white*mysubsetdata$PARTYID # This is one way of creating the whites only slope dummy variable for partyid.
+bpartyid=black*mysubsetdata$PARTYID # This is one way of creating the blacks only slope dummy variable for partyid.
+carter.model <-lm(mysubsetdata$CARFEEL3 ~ white + black + wpartyid + bpartyid + mysubsetdata$SEX + mysubsetdata$AGE - 1)
+summary(carter.model)
+# Note: R does not calculate the R-squared statistic correctly when suppressing the intercept in the regression model above.
+# To do this correctly, the following code is appended here. It will calculate the R-squared statistic for you correctly. 
+rss.residuals <- sum((residuals(carter.model))^2)
+rss.residuals
+mean.dep.var <- mean(mysubsetdata$CARFEEL3, na.rm="TRUE")
+mean.dep.var 
+tss.dep.var <- sum((mysubsetdata$CARFEEL3-mean.dep.var)^2, na.rm="TRUE")
+tss.dep.var 
+r.square <- 1 - (rss.residuals/tss.dep.var)
+r.square
+# One way to test for the equality of two regression parameters is with an F-test, using the Wald procedure.
+# Another way is to make a confidence interval. 
+# Either way, you will need the coefficient-covariance matrix. Here it is:
+V <- vcov(carter.model)
+V
