@@ -6,30 +6,33 @@ model1=lm(Ozone~Wind,airquality)
 plot(model1)
 coef(model1)
 
-(Intercept) Wind 
-96.872895 -5.550923 
+##(Intercept) Wind 
+##96.872895 -5.550923 
 
 #predictions for Wind speeds of 19 and 20 mph:
 
-Ozone1=coef(model1)[1]+coef(model1)[2]*1­9
-Ozone2=coef(model1)[1]+coef(model1)[2]*2­0
+Ozone1=coef(model1)[1]+coef(model1)[2]*19
+Ozone2=coef(model1)[1]+coef(model1)[2]*20
 
 Ozone1
 Ozone2
 
 ##
 
-model2=glm(Ozone~Wind,airquality,family=­poisson)
+model2 <- glm(Ozone~Wind,airquality,family = poisson())
 coef(model2)
 
-(Intercept) Wind 
-5.0795877 -0.1488753 
+##(Intercept) Wind 
+##5.0795877 -0.1488753 
 
-Ozone1.glm=exp(coef(model2)[1]+coef(mode­l2)[2]*19)
-Ozone2.glm=exp(coef(model2)[1]+coef(mode­l2)[2]*20)
+Ozone1.glm=exp(coef(model2)[1]+coef(model2)[2]*19)
+Ozone2.glm=exp(coef(model2)[1]+coef(model2)[2]*20)
+
+Ozone1.glm
+Ozone2.glm
 
 Ozone2.glm/Ozone1.glm
-0.8616765 
+##0.8616765 
 
 
 exp(coef(model2)[2]) #exp(-0.1488753 )
@@ -48,7 +51,7 @@ model3=gls(Ozone~Wind,airquality,na.acti­on=na.exclude)
 head(airquality)
 
 airquality$Date=
-as.Date(paste(1973,airquality$Month,airq­uality$Day,sep="-"))
+  as.Date(paste(1973,airquality$Month,airq­uality$Day,sep="-"))
 
 library(lattice)
 
