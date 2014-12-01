@@ -52,3 +52,63 @@ r.square
 # Either way, you will need the coefficient-covariance matrix. Here it is:
 V <- vcov(carter.model)
 V
+
+
+METHOD #1: The Wald Procedure
+At this point, you will need a paper and pencil to finish the equality test since the lm procedure in R does not do this for you automatically. From the coefficient-covariance matrix, V, take the variance of each variable, and the covariance for the two variables together, plus the original parameter estimates from the regression, and then calculate your F-statistic using this formula:
+
+F = [(parameter 1 - parameter 2)/(the square root of (variance of the first parameter + variance of the second parameter - 2*(the covariance of both parameters)))] and all this squared.
+
+or, using R
+
+F <- ((P1 - P2)/(sqrt(varP1 + varP2 - 2*covP1P2)))^2
+
+where P1 and P2 come from your regression, and varP1, varP2 and covP1P2 come from your coefficient-covariance matrix, V. You can also get varP1 and varP2 by squaring the standard errors for P1 and P2 that you get from your regression.
+
+Note that the big difference between the F-statistic and the t-statistic is that with the F you are squaring everything, including the difference between the two parameter values.
+
+Now that you have the F statistic, you need the degrees of freedom, and there are two types, call them df1 and df2. Here, df1= 1, or the number of tests involved (there just one), and df2= (N - k), where N is the number of observations in your regression, and k is the number of slope and intercept parameters that you are estimating in your model. Now, using R, do the following, substituting the right numbers for F, df1, and df2:
+
+F.stats <- df(F, df1, df2)
+F.stats
+
+Alternatively, you can use your F-distribution table that is in the back of your book.
+
+METHOD	#2: The Confidence Interval
+Perhaps the easiest way to proceed, is simply to calculate a 95% confidence interval (using 1.96SE) for the difference between the two parameters. Thus, you want a confidence interval for (P1-P2). This is easy to do with the combined standard error that you used above, sqrt(varP1 + varP2 - 2*covP1P2), where you get these things from the coefficient-covariance matrix, V, as before. Look to see if zero is inside the confidence interval, and you are done! (For a reference, see Eric A. Hanushek and John E. Jackson, Statistical Methods for Social Scientists, New York: Academic Press, 1977, p. 124.)
+
+A NOTE ABOUT STANDARDIZED PARAMETER ESTIMATES WHEN USING DUMMY VARIABLES: If you want to compute the standardized parameter estimates for your model, do not standardize the intercept dummy variables. Leave those as values of 0 and 1. But when you standardize your variables, you will need to create a new data set that contains the all the variables in your model, including the variables that you created yourself, such as the slope dummy variables. Try using the cbind command to combine your primary data set with the other variables (but not the intercept dummy variables). Then standardize the new data set.
+
+Approach #2 for creating the dummy variables:
+
+# First we get our data.
+mydata <- read.table("panel80.df")
+# attach(mydata) # In case you want to work with the variables directly
+names(mydata) # This shows us all the variable names.
+# options(scipen=20) # suppress "scientific" notation
+options(scipen=NULL) # Brings things back to normal
+
+# Now let's create our intercept dummy variables.
+mysubsetdata <- subset(mydata, RACE == 1 | RACE == 2) # This gets rid of the "other" category in race.
+xf <- factor(mysubsetdata$RACE, levels=1:2) # This factors the RACE variable.
+xfnew <- as.data.frame(model.matrix(~xf-1)) # This creates a new data frame out of the RACE factors.
+white <- xfnew$xf1
+black <- xfnew$xf2
+racedata <- cbind(white, black) # We include the new variable with our data set
+racedata # Prints out the race data
+
+# Now we create the slope dummy variables and set up our linear regression model.
+wpartyid=white*mysubsetdata$PARTYID # This is one way of creating the whites only slope dummy variable for partyid.
+bpartyid=black*mysubsetdata$PARTYID # This is one way of creating the blacks only slope dummy variable for partyid.
+carter.model <-lm(mysubsetdata$CARFEEL3 ~ white + black + wpartyid + bpartyid + mysubsetdata$SEX + mysubsetdata$AGE - 1)
+summary(carter.model)
+# Note: R does not calculate the R-squared statistic correctly when suppressing the intercept in the regression model above.
+# To do this correctly, the following code is appended here. It will calculate the R-squared statistic for you correctly. 
+rss.residuals <- sum((residuals(carter.model))^2)
+rss.residuals
+mean.dep.var <- mean(mysubsetdata$CARFEEL3, na.rm="TRUE")
+mean.dep.var 
+tss.dep.var <- sum((mysubsetdata$CARFEEL3-mean.dep.var)^2, na.rm="TRUE")
+tss.dep.var 
+r.square <- 1 - (rss.residuals/tss.dep.var)
+r.square
