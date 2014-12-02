@@ -1,0 +1,73 @@
+##Example of Fitting a Linear Model to Binomial Data
+
+norg <- c(10,15,18,12,14,22,8,3)
+sum(norg)
+numsurv <- c(2,4,6,4,5,10,3,2)
+numsurv
+prop <- numsurv / norg
+prop
+dose <- 1:8
+
+plot(dose, prop, xlab="Dose", ylab="Proportion of Organisms Surviving", 
+     pch=16, cex=1.5, cex.lab=1.5,cex.axis=1.5)
+lmmod <- lm(prop ~ dose)
+abline (lmmod$coef, lwd=2, col=2)
+
+par(mfrow=c(2,2), mar=c(3.1,3.1,3.1,1.1), cex=1.25, cex.axis=1.25,lwd=2,cex.main=1.25,cex.sub=1.25,pch=16)
+plot(lmmod)
+dev.off()
+
+##Different look at this data
+
+numdied <- norg - numsurv
+numdied
+sum(numdied)
+survstatus <- c(rep(0,sum(numdied)), rep(1,sum(numsurv)))
+survstatus
+length(survstatus)
+newdose <- rep(c(dose,dose), c(numdied, numsurv))
+newdose
+newlm <-lm(survstatus ~ newdose)
+newlm
+plot(dose, rep(1, length(dose)), pch=16, cex=numsurv*0.5, ylim =c(-0.1,1.1),
+     xlab="Dose", ylab="Survived = 1, Died = 0", cex.axis=1.5, cex.lab=1.5)
+abline(lmmod$coef, lwd=2, col=2)
+points(dose,rep(0, length(dose)), pch=16, cex=numdied*0.5)
+text(4.5,0.6,"Point Size Proportional\nto Number", cex=2)
+abline(newlm$coef, lwd=2,col=3)
+
+par(mfrow = c(2,2), mar= c(3.1,3.1,3.1,1.1), cex=1.25,cex.axis=1.25, lwd=2, cex.main=1.25,pch=16)
+plot(newlm)
+dev.off()
+
+##Other problems with least squares here
+norg2 <- c(10,15,18,12,14,22,8,3,10,13,29,7,16,2,19,14)
+numsurv2 <- c(2,4,6,4,5,10,3,2,7,9,21,6,15,2,19,14)
+prop2 <- numsurv2 / norg2
+dose2 <- 1:16
+plot(dose2,prop2,xlab="Dose", ylab="Proportion of Orgaisms Surving",pch=16, cex=1.5, cex.lab=1.5,
+     cex.axis=1.5, xlim=c(-3,20), ylim=c(0,1.0))
+lmmod2 <- lm(prop2 ~ dose2)
+abline(lmmod2$coef,lwd=2,col=2)
+abline(h=c(0,1), lwd=2, lty=2, col="gray80")
+
+##Logistic Regression
+
+#Construct above data as a sequence of 0s and 1s
+
+numdied2<-norg2 - numsurv2
+survstatus2 <- c(rep(0,sum(numdied2)),rep(1,sum(numsurv2)))
+newdose2 <- rep(c(dose2,dose2), c(numdied2, numsurv2))
+
+##Fit logit model of 0s and 1s:
+logitmod2 <- glm(survstatus2 ~ newdose2, family = binomial)
+summary(logitmod2)
+
+##Fit logit model to same data, stored the original way
+
+logitmod2orig<- glm(formula = cbind(numsurv2,numdied2) ~ dose2, family=binomial)
+
+##To fit a fitted value for dose = 5 "manually"
+
+theta5 <- logitmod2$coef[1] + logitmod2$coef[2] * 5
+mu5 <- exp (theta5) / (1 + exp (theta5))
