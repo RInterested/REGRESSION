@@ -1,3 +1,4 @@
+ 
 airquality
 
 plot(Ozone~Wind,airquality)
@@ -43,32 +44,22 @@ exp(coef(model2)[2]) #exp(-0.1488753 )
 
 library(nlme)
 
-model3=gls(Ozone~Wind,airquality)
+
 summary(airquality$Ozone)
 
-model3=gls(Ozone~Wind,airquality,na.acti­on=na.exclude)
+model3=gls(Ozone~Wind,airquality,na.action=na.exclude)
 
 head(airquality)
 
 airquality$Date=
-  as.Date(paste(1973,airquality$Month,airq­uality$Day,sep="-"))
+  as.Date(paste(1973,airquality$Month,airquality$Day,sep="-"))
 
 library(lattice)
 
 xyplot(Ozone~Date,airquality)
 
-model4=gls(Ozone~Wind*Date,airquality,na­.action=na.exclude)
-air2=subset(airquality,complete.cases(Oz­one))
+model4=gls(Ozone~Wind*Date,airquality,na.action=na.exclude)
+air2=subset(airquality,complete.cases(Ozone))
 
 model5=gls(Ozone~Wind*Date,air2)
 plot(ACF(model5,form=~Date),alpha=0.05)
-
-model6=update(model5,correlation=corAR1(­))
-
-library(MuMIn)
-
-AICc(model5,model6) df AICc
-model5 5 1099.40
-model6 6 1095.21
-
-summary(model6)
