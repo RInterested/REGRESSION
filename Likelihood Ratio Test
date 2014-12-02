@@ -1,0 +1,9 @@
+install.packages("epicalc")
+library(epicalc)
+model0 <- glm(case ~ induced + spontaneous, family=binomial, data=infert)
+model1 <- glm(case ~ induced, family=binomial, data=infert)
+lrtest (model0, model1)
+#Likelihood ratio test for MLE method 
+#Chi-squared 1 d.f. =  36.48675 , P value =  0 
+model1$deviance-model0$deviance
+#[1] 36.48675
