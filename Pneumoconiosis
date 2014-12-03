@@ -7,11 +7,11 @@ dat
 attach(dat) #There's an error message, which is safe to disregard.
 total <- normal + sick
 total
-relativeFreq <- sick / num.miners
+relativeFreq <- sick / num.miners #Like p = probability to get sick in a bernouilli trial
 relativeFreq
-Odds <- (relativeFreq) /(1 - relativeFreq)
+Odds <- (relativeFreq) /(1 - relativeFreq) #Odds of getting sick = probability getting sick / probability NOT getting sick
 Odds
-logOdds <- log((relativeFreq) /(1 - relativeFreq))
+logOdds <- log(Odds)
 logOdds
 plot(log(years.exp),logOdds)
 status <- matrix(c(sick,normal), ncol = 2)
