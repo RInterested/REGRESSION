@@ -1,0 +1,21 @@
+##Log pneumoconiosis file
+dat <- read.csv(file.choose())
+dat
+sick <- dat$mild + dat$severe
+dat <- cbind(dat,sick)
+dat
+attach(dat) #There's an error message, which is safe to disregard.
+total <- normal + sick
+total
+relativeFreq <- sick / num.miners
+relativeFreq
+Odds <- (relativeFreq) /(1 - relativeFreq)
+Odds
+logOdds <- log((relativeFreq) /(1 - relativeFreq))
+logOdds
+plot(log(years.exp),logOdds)
+status <- matrix(c(sick,normal), ncol = 2)
+status
+logreg1 <- glm(status ~ log(years.exp),family=binomial)
+summary(logreg1)
+abline(logreg1)
