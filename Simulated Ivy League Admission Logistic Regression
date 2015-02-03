@@ -1,0 +1,67 @@
+dat <- read.csv(file.choose(),header = T)
+head(dat)
+str(dat)
+#To calculate the Odds Ratio of being accepted if Red family background
+#versus Blue family background we need the intercept, which will be Blue
+#(alphabetical order). An odds ratio (OR) is a measure of association between 
+#an exposure and an outcome. The OR represents the odds that an outcome will 
+#occur given a particular exposure, compared to the 
+#odds of the outcome occurring in the absence of that exposure.
+#In our case: Acceptance/Red / Acceptance/Blue, and viceversa for Blue:
+fit <- glm(Accepted ~ Background, data = dat, family = "binomial")
+exp(cbind(Odds_Ratio_RedvBlue = coef(fit), confint(fit)))
+                      Odds_Ratio_RedvBlue     2.5 %    97.5 %
+  (Intercept)             0.7088608         0.5553459 0.9017961
+Backgroundred             2.4480042         1.7397640 3.4595454
+
+#So the OddsRatio of Being accepted being Red are 2.5 times higher than being Red.
+#That means that Red applicants have 2.5 times MORE CHANCES of getting in over the rest.
+#The oddsRatio of Being accepted being Blue are 30% lower than being Blue.
+#The CI does not include the number 1 (ln(0)), implying that the results are
+#statistically significant.
+
+#Now by introducing the - 1 the coefficients are no longer Odds Ratio's but just Odds:
+
+fit2 <- glm(Accepted ~ Background - 1, data = dat, family = "binomial")
+exp(cbind(Odds_ifBlue_ifRed = coef(fit2), confint(fit2)))
+
+                      Odds_ifBlue_ifRed       2.5 %       97.5 %
+Backgroundblue           0.7088608        0.5553459   0.9017961
+Backgroundred            1.7352941        1.3632702   2.2206569
+
+#The "odds" of a Blue being accepted are 0.7: for every person of Blue background
+#that is not accepted 0.7 persons with Blue background will be accepted. So there is
+#NO COMPARISON between RED and BLUE! It is just a quantification of the likelihood
+#that someone with Blue background will be accepted.
+
+fit3 <- glm(Accepted ~ Background + SAT.scores, data = dat, family = "binomial")
+exp(cbind(Odds_Ratio = coef(fit3), confint(fit3)))
+
+                        Odds_Ratio        2.5 %         97.5 %
+  (Intercept)         8.730056e-06    8.459031e-07    7.634723e-05
+Backgroundred         2.668383e+00    1.798368e+00    3.993788e+00
+SAT.scores            1.008558e+00    1.006940e+00    1.010297e+00
+
+#What???? 0.0000087?? Well, yes... These are the ODDS of getting in being Red as 
+#opposed to Blue IF the SAT score was ZERO!!!!!
+
+fit4 <- glm(Accepted ~ Background + I(SAT.scores-1200), data = dat, family = "binomial")
+exp(cbind(Odds_Ratio = coef(fit4), confint(fit4)))
+
+                        Odds_Ratio          2.5 %       97.5 %
+  (Intercept)           0.2409397       0.1652098     0.3434738
+Backgroundred           2.6683828       1.7983678     3.9937877
+I(SAT.scores - 1200)    1.0085577       1.0069397     1.0102967
+
+#So now we are back to the original number, but Red are not so "lucky" when controlling
+#for the SAT score "confounder". So we are centering the SAT.scores at 1,200.
+
+#Finally what would happen with a -1?
+
+fit5 <- glm(Accepted ~ Background + I(SAT.scores-1200) - 1, data = dat, family = "binomial")
+exp(cbind(Odds = coef(fit5), confint(fit5)))
+
+                          Odds              2.5 %         97.5 %
+  Backgroundblue        0.2409397         0.1652098     0.3434738
+Backgroundred           0.6429193         0.4613680     0.8886182
+I(SAT.scores - 1200)    1.0085577         1.0069397     1.0102967
