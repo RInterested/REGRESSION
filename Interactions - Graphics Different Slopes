@@ -1,0 +1,56 @@
+---
+title: "Difference two regressors v interaction"
+output: html_document
+---
+
+Check this out, paying attention to whether the intersects are equal and the slopes are equal:
+
+First the lm with mpg ~ factor(cyl) + wt. That is no interaction, just two separate regressors: cyl and wt...
+
+```{r}
+mtcars$am <- as.factor(mtcars$cyl)
+fit <- lm(mpg ~ factor(cyl) + wt, mtcars)
+
+require(lattice)
+
+plot1 <- xyplot(mpg ~ wt,
+  group=cyl, key = list(text=list(c("4","6","8")),
+  points=list(pch=c(20,20)),col=c('dark red','orange','black')),
+  pch=c(20,20,20),cex=1,col=c('dark red','orange','black'),
+  xlab = "car weight",ylab = "mpg", data=mtcars)
+
+print(plot1)
+
+require(mosaic); require(mosaicData)
+fitw = makeFun(fit) 
+plot1a<-plotFun(fitw(wt, cyl="4") ~ wt,col='dark red',lwd=1,add=TRUE)
+plot1b<-plotFun(fitw(wt, cyl="6") ~ wt,col='orange',lwd=1,add=TRUE)
+plot1c<-plotFun(fitw(wt, cyl="8") ~ wt,col='black',lwd=1,add=TRUE)
+
+print(plot1a) + print(plot1b) + print(plot1c)
+```
+
+You have three levels for the variable cyl, and these result in three separate but parallel regression lines - intercepts vary; slope is the same.
+
+Now let's look at the more sophisticated model mpg ~ factor(cyl) * wt. Here we can see that the fuel efficiency of cars with four cylinders drops faster with the weight of the car as compared to 8 cylinders, for instance.
+
+```{r}
+fit2 <- lm(mpg ~ factor(cyl) * wt, mtcars)
+
+plot1 <- xyplot(mpg ~ wt,
+  group=cyl, key = list(text=list(c("4","6","8")),
+  points=list(pch=c(20,20)),col=c('dark red','orange','black')),
+  pch=c(20,20,20),cex=1,col=c('dark red','orange','black'),
+  xlab = "car weight",ylab = "mpg", data=mtcars)
+
+print(plot1)
+
+fitz = makeFun(fit2) 
+plot2a<-plotFun(fitz(wt, cyl="4") ~ wt,col='dark red',lwd=1,add=TRUE)
+plot2b<-plotFun(fitz(wt, cyl="6") ~ wt,col='orange',lwd=1,add=TRUE)
+plot2c<-plotFun(fitz(wt, cyl="8") ~ wt,col='black',lwd=1,add=TRUE)
+
+print(plot2a) + print(plot2b) + print(plot2c)
+```
+
+Now we have different intercepts, and different slopes.
