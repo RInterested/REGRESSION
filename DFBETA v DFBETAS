@@ -1,0 +1,21 @@
+x <- c(0.586, 0.166, -0.042, -0.614, 11.72)
+y <- c(0.549, -0.026, -0.127, -0.751, 1.344)
+
+fit1 <- lm(y ~ x)
+fit2 <- lm(y[-5] ~ x[-5])
+
+plot(y~x,pch=18,col="dark red",cex=2)
+abline(lm(y~x),col='red',lwd=2,lty=1.5)
+points(y[-5] ~ x[-5], 
+       col=rgb(0,100,0,50,maxColorValue=255), pch=16, cex=3)
+abline(lm(y[-5] ~ x[-5]),col="orange",lwd=2,lty=1.5)
+
+DFBETA <- fit1$coef[2] - fit2$coef[2]
+dfbeta(fit1)[10]
+
+lm.influence(fit1)
+summary(fit1)
+
+DFBETAS <- DEBETA/(sqrt((summary(fit2)$sigma^2)*diag(summary(fit1)$cov.unscaled)[2]))
+DFBETAS
+dfbetas(fit1)[10]
