@@ -1,0 +1,74 @@
+# Building up an OLS linear regression with categorical variables:
+
+# Money spent per year in $ in self-indulgence - not flattering to men, but made up...
+# The first two entries are children; next two, women; last two, men:
+y <- c(50, 60, 800, 1000, 1800, 2000)
+ch <- c(1, 1, 0, 0, 0, 0) # Selecting the children
+f <- c(0, 0, 1, 1, 0, 0) # Selecting the women
+m <- c(0, 0, 0, 0, 1, 1) # Selecting the men
+
+#Let's construct the design matrix A:
+
+A <- cbind(ch, f, m)
+solve(t(A) %*% A) %*% t(A) %*% y
+
+#       [,1]
+#ch     55
+#f      900
+#m     1900
+
+mean(c(y[1:2])); mean(c(y[3:4])); mean(c(y[5:6]))
+
+#[1] 55
+#[1] 900
+#[1] 1900
+
+lm(y ~ A)
+
+#Coefficients:
+#           (Intercept)       Ach          Af           Am  
+#               1900        -1845        -1000          NA    
+
+# The intercept corresponds to the adult - that's Am (that's why we get NA)
+# The intercept for children is 1900 - 1845 = 55
+# The intercept for women is 1900 - 1000=  900
+
+# Now let's add a continuous variable, such as height:
+# This comes in the vector of heights in cm:
+
+H <- c(90, 80, 145, 150, 175, 180) # ... made up data...
+
+#Let's add this vector to the design matrix:
+
+A <- cbind(A, H)
+
+#And run the regression - we want to predict money spent based on gender and height:
+
+round(solve(t(A) %*% A) %*% t(A) %*% y,3)
+
+#[,1]
+#c1 -1021.667
+#c2  -968.333
+#c3  -348.333
+#H     12.667
+
+# Different values, very far now from the mean expenditure, but now we are fitting a slope.
+
+#Using the built-in lm formula:
+
+fit <- lm(y ~ A)
+fit
+
+#(Intercept)          Ach          Af          Am           AH  
+#       -348.33      -673.33      -620.00       NA          12.67  
+
+
+#Corresponding to -348.33 - 673.33 = -1021.66 and -348.33 - 620.00 = -968.33
+
+# Does it work? Let's try and predict:
+
+round(predict(fit, A = as.data.frame(H)),0)
+
+# 1       2    3    4    5    6 
+# 118    -8  868  932 1868 1932 
+# Compared to y <- c(50, 60, 800, 1000, 1800, 2000)
