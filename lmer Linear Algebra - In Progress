@@ -1,0 +1,42 @@
+## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
+#####################
+#MIXED EFFECTS MODEL:
+#####################
+
+
+##################
+## The Z matrix ##
+##################
+
+## n is the number of observations
+## q is the number of random effects (plots)
+## Z Matrix is n x q
+
+require(MASS)
+
+data(Traffic)
+head(Traffic)
+Traffic$year <- as.factor(Traffic$year)
+Z <- model.matrix(~year - 1, data = Traffic)
+Z[c(1, 2, 184), ]
+transp_Z <- with(Traffic, as(year, "sparseMatrix"))
+
+
+require(lme4)
+head(Dyestuff)
+transp_Z <- with(Dyestuff, as(Batch, "sparseMatrix"))
+transp_Z
+
+
+##################
+## The X matrix ##
+##################
+
+## p is the number of fixed effects
+## X matrix is n x p
+
+#####################
+## The beta vector ##
+#####################
+
+## is p x 1
