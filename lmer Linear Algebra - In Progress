@@ -1,4 +1,7 @@
 ## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
+
+
+
 #####################
 #MIXED EFFECTS MODEL:
 #####################
@@ -27,6 +30,33 @@ head(Dyestuff)
 transp_Z <- with(Dyestuff, as(Batch, "sparseMatrix"))
 transp_Z
 
+##############################################
+# As for the Sigma matrix = TSS'T'
+# T is q x q lower triangular
+# S is q x q diagonal scale matrix
+# Hence Sigma is qxq
+###############################################
+
+#S
+# 6 x 6 diagonal matrix of class "ddiMatrix"
+#         [,1]    [,2]    [,3]    [,4]    [,5]    [,6]
+#[1,] 0.84823       .       .       .       .       .
+#[2,]       . 0.84823       .       .       .       .
+#[3,]       .       . 0.84823       .       .       .
+#[4,]       .       .       . 0.84823       .       .
+#[5,]       .       .       .       . 0.84823       .
+#[6,]       .       .       .       .       . 0.84823
+
+# T
+#6 x 6 sparse Matrix of class "dtCMatrix"
+# [1,] 1 . . . . .
+# [2,] . 1 . . . .
+# [3,] . . 1 . . .
+# [4,] . . . 1 . .
+# [5,] . . . . 1 .
+# [6,] . . . . . 1
+
+
 
 ##################
 ## The X matrix ##
@@ -40,3 +70,4 @@ transp_Z
 #####################
 
 ## is p x 1
+
