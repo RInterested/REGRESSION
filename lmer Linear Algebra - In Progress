@@ -1,7 +1,5 @@
 ## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
 
-## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
-
 #####################
 #MIXED EFFECTS MODEL:
 #####################
@@ -20,7 +18,7 @@ require(MASS)
 data(Traffic)
 head(Traffic)
 Traffic$year <- as.factor(Traffic$year)
-Z <- model.matrix(~year - 1, data = Traffic)
+Z <- model.matrix(~ year - 1, data = Traffic)
 Z[c(1, 2, 184), ]
 transp_Z <- with(Traffic, as(year, "sparseMatrix"))
 
@@ -67,7 +65,13 @@ T <- diag(1,6)
 
 # Sigma
 
-Sigma <- crossprod(getME(fm1,"Lambdat"))
+(Sigma <- crossprod(getME(fm1,"Lambdat")))
+
+# Other extractions:
+
+getME(fm1,"Z")
+getME(fm1,"S")
+getME(fm1,"theta")
 
 #or
 
@@ -93,3 +97,24 @@ image(Sigma)
 #####################
 
 ## is p x 1
+
+
+## Another example with sleepstudy:
+
+library(lattice)
+print(xyplot(Reaction ~ Days | Subject, sleepstudy, aspect = "xy",
+             layout = c(6,3), type = c("g", "p", "r"),
+             index.cond = function(x,y) coef(lm(y ~ x))[1],
+             xlab = "Days of sleep deprivation",
+             ylab = "Average reaction time (ms)"))
+
+fit <- lmer(Reaction ~ 1 + (1 | Subject), sleepstudy)
+str(sleepstudy$Subject)
+T <- diag(1,18)
+S <- T * getME(fit,"theta")
+Sigma <- S %*% t(S)
+# or with built-in function:
+(Sigma <- crossprod(getME(fit,"Lambdat")))
+
+
+
