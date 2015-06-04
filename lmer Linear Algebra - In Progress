@@ -116,5 +116,6 @@ Sigma <- S %*% t(S)
 # or with built-in function:
 (Sigma <- crossprod(getME(fit,"Lambdat")))
 
-
-
+str(sleepstudy)
+fit2<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
+(Sigma <- crossprod(getME(fit2,"Lambdat")))
