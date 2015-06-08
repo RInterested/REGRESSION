@@ -1,5 +1,12 @@
 ## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
 
+require(nlme)
+require(lme4)
+head(Rail)
+fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
+fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
+
+
 #####################
 #MIXED EFFECTS MODEL:
 #####################
