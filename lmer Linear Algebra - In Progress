@@ -3,8 +3,30 @@
 require(nlme)
 require(lme4)
 head(Rail)
+
+## The model is yij = β + bi + epsilon ij
+## bi∼N(0,σ2b), epsilonij∼N(0,σ2).
+## σ2b is between rail variability, and σ2 within rail variability.
+
+fm1Rail.lm <- lm( travel ~ 1, data = Rail )
+fm2Rail.lm <- lm( travel ~ Rail - 1, data = Rail )
 fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
 fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
+
+summary(fm1Rail.lm)
+summary(fm2Rail.lm)
+fm1Rail.lme
+fm1Rail.lmeML
+
+## Notice that the residual standard error are the same in the three models.
+## Notice that mean of the travel time is identical to the intercept of the fixed effects:
+
+mean(Rail$travel)
+
+## The residual standard error of the first model is identical to the standard deviation:
+
+sd(Rail$travel)
+
 
 
 #####################
