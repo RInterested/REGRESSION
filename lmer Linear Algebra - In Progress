@@ -48,7 +48,20 @@ fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
 fm1Rail.lme
 fm1Rail.lmeML
 
-## Notice that the residual standard error are the same in the three last models.
+## One of the outputs would be:
+## (Intercept) 
+##       66.5 
+
+## Random effects:
+## Formula: ~1 | Rail
+##        (Intercept) Residual
+## StdDev:    24.80547 4.020779
+
+## The intercept of the stanDev of the random effects is close to the sd of the data.
+sd(Rail$travel) # [1] 23.64505
+
+## But not quite, because it is the variation between groups, not the sd of the entire dataset.
+## Notice that the residual standard error are the same in the three last models: 4.021
 
 
 
