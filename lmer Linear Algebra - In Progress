@@ -39,6 +39,8 @@ summary(fm2Rail.lm)
 ## where β is the mean travel time across the population of rails being sam-
 ## pled, bi is a random variable representing the deviation from the population
 ## mean of the mean travel time for the ith rail,
+## bi∼N(0,σ2b), epsilonij∼N(0,σ2).
+## σ2b is BETWEEN rail variability, and σ2 within rail variability.
 
 fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
 fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
