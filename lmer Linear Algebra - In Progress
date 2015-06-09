@@ -30,7 +30,15 @@ summary(fm2Rail.lm)
 ## six times less than in the prior model, 23.65.
 
 ## This model accounts for the groups, BUT it only models the specific sample of rails
-## used in the experiment, AND doesn't estimate the varibility BETWEEN rails.
+## used in the experiment, AND doesn't estimate the varibility BETWEEN rails. Further
+## the number of parameters in the model increases linearly with the number of rails.
+
+## The random effect models considers the rail effect to be randomly distributed around
+## the population mean.
+## The model is yij = β + bi + ij ,
+## where β is the mean travel time across the population of rails being sam-
+## pled, bi is a random variable representing the deviation from the population
+## mean of the mean travel time for the ith rail,
 
 fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
 fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
@@ -39,6 +47,10 @@ fm1Rail.lme
 fm1Rail.lmeML
 
 ## Notice that the residual standard error are the same in the three last models.
+
+
+
+
 
 
 
