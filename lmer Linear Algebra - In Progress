@@ -8,25 +8,43 @@ head(Rail)
 ## bi∼N(0,σ2b), epsilonij∼N(0,σ2).
 ## σ2b is between rail variability, and σ2 within rail variability.
 
+## Compare it to a simpler model without the classification factor when modeling group data
+## corresponding to yij = β + epsilon ij:
+
 fm1Rail.lm <- lm( travel ~ 1, data = Rail )
-fm2Rail.lm <- lm( travel ~ Rail - 1, data = Rail )
-fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
-fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
-
 summary(fm1Rail.lm)
-summary(fm2Rail.lm)
-fm1Rail.lme
-fm1Rail.lmeML
 
-## Notice that the residual standard error are the same in the three models.
-## Notice that mean of the travel time is identical to the intercept of the fixed effects:
-
-mean(Rail$travel)
+## The intercept is the mean of all the rails.
 
 ## The residual standard error of the first model is identical to the standard deviation:
 
 sd(Rail$travel)
 
+## Using a fixed-effect model for the classification or groups we get a
+## yij = βi + ij formulation, where every rail has its mean:
+
+fm2Rail.lm <- lm( travel ~ Rail - 1, data = Rail )
+summary(fm2Rail.lm)
+
+## Notice that the residual standard error in the last paragraph is 4, which is
+## six times less than in the prior model, 23.65.
+
+## This model accounts for the groups, BUT it only models the specific sample of rails
+## used in the experiment, AND doesn't estimate the varibility BETWEEN rails.
+
+fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
+fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
+
+fm1Rail.lme
+fm1Rail.lmeML
+
+## Notice that the residual standard error are the same in the three last models.
+
+
+
+
+
+=============================================================================================================================
 
 
 #####################
