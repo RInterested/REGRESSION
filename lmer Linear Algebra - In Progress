@@ -1,4 +1,5 @@
 ## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
+## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
 
 require(nlme)
 require(lme4)
@@ -42,6 +43,7 @@ summary(fm2Rail.lm)
 ## bi∼N(0,σ2b), epsilonij∼N(0,σ2).
 ## σ2b is BETWEEN rail variability, and σ2 within rail variability.
 
+
 fm1Rail.lme <- lme(travel ~ 1, data = Rail, random = ~ 1 | Rail)
 fm1Rail.lmeML <- update( fm1Rail.lme, method = "ML" )
 
@@ -62,6 +64,22 @@ sd(Rail$travel) # [1] 23.64505
 
 ## But not quite, because it is the variation between groups, not the sd of the entire dataset.
 ## Notice that the residual standard error are the same in the three last models: 4.021
+
+head(ergoStool)
+plot.design( ergoStool )  
+## Clearly different stools require more or less effort, and so do subjects.
+fm1Stool <-   lme(effort ~ Type, data = ergoStool, random=~1|Subject)
+summary( fm1Stool )
+
+## Notice that the intercept is the same as
+
+mean(ergoStool[ergoStool$Type=='T1','effort'])
+
+## and that...
+
+mean(ergoStool[ergoStool$Type=='T2','effort'])-mean(ergoStool[ergoStool$Type=='T1','effort'])
+
+## is the return for Fixed effects T2.
 
 
 
