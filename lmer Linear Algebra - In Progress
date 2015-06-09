@@ -81,6 +81,21 @@ mean(ergoStool[ergoStool$Type=='T2','effort'])-mean(ergoStool[ergoStool$Type=='T
 
 ## is the return for Fixed effects T2.
 
+anova(fm1Stool)
+
+#Interactions - replicated data
+
+attach( Machines )  
+interaction.plot( Machine, Worker, score, las = 1)   
+detach()
+
+
+# If there were no interactions the lines would be parallel.
+
+fm1Machine <- lme( score ~ Machine, data = Machines, random=~1|Worker )
+fm1Machine
+fm2Machine <- update( fm1Machine, random=~1|Worker/Machine )
+fm2Machine
 
 
 
