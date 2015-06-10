@@ -1,0 +1,11 @@
+require(lme4)
+str(Dyestuff)
+library(lattice)
+plot(Dyestuff)
+xyplot(Yield~Batch,Dyestuff)
+
+print(dotplot(reorder(Batch, Yield) ~ Yield, Dyestuff,
+              ylab = "Batch", jitter.y = TRUE, pch = 21,
+              xlab = "Yield of dyestuff (grams of standard color)",
+              type = c("p", "a")))
+
