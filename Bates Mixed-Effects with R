@@ -9,3 +9,23 @@ print(dotplot(reorder(Batch, Yield) ~ Yield, Dyestuff,
               xlab = "Yield of dyestuff (grams of standard color)",
               type = c("p", "a")))
 
+fm01 <- lmer(Yield ~ 1 + (1|Batch), Dyestuff)
+fm01
+
+## Notice that the variability between Batch-es in the Random
+## effects...
+
+#Random effects:
+ #   Groups   Name        Std.Dev.
+#Batch    (Intercept) 42.00   
+#Residual             49.51 
+
+## ...is not the same as the sd of the means in Yield for each
+## Batch:
+
+ave_yields <- vector()
+for(i in levels(Dyestuff[,1])){
+    ave_yields[i] <- mean(Dyestuff[Dyestuff$Batch==i,'Yield'])
+}
+str(ave_yields)
+sd(ave_yields)
