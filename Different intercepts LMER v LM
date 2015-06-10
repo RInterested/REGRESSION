@@ -1,0 +1,42 @@
+install.packages('gsheet')
+
+library(gsheet)
+data <- read.csv(text = 
+                   gsheet2text('https://docs.google.com/spreadsheets/d/1zIpDAf_n6jSH2eKYlyM24x7YncWe41I7-Nvh5RPwYTI/edit?usp=sharing',
+                               format ='csv'))
+
+head(data)
+
+
+boxplot(frequency ~ subject, data=data)
+
+
+fit_ME <- lmer(frequency ~ attitude + gender + (1|subject), data = data)
+coef(fit)
+
+
+fit_lm <- lm(frequency ~ attitude + gender + subject, data = data)
+coef(fit_lm)
+
+
+## Or with mtcars:
+
+mtcars$cyl <- as.factor(mtcars$cyl)
+fit_ME <- lmer(mpg ~ wt + (1|cyl), data=mtcars)
+fit_LM <- lm(mpg ~ wt + cyl, data=mtcars)
+coef(fit_ME)
+coef(fit_LM)
+
+#coef(fit_ME)
+# $cyl
+#   (Intercept)        wt
+# 4    34.48563 -3.517543
+# 6    30.79234 -3.517543
+# 8    29.29641 -3.517543
+
+# attr(,"class")
+# [1] "coef.mer"
+
+# coef(fit_LM)
+# (Intercept)          wt        cyl6                  cyl8 
+#   33.990794   -3.205613   -4.255582 (or 29.73521)  -6.070860 (or 27.91993)
