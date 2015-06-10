@@ -1,4 +1,4 @@
-## From Douglas Bates documents 'lmer' and 'Bates lecture lmer'
+## From Douglas Bates Mixed-Effects in S
 
 require(nlme)
 require(lme4)
