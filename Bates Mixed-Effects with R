@@ -16,7 +16,7 @@ fm01
 ## effects...
 
 #Random effects:
- #   Groups   Name        Std.Dev.
+#   Groups   Name        Std.Dev.
 #Batch    (Intercept) 42.00   
 #Residual             49.51 
 
@@ -31,11 +31,15 @@ for(i in levels(Dyestuff[,1])){
 sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
 #[1] 49.5101
 
-# The Random Eff variance (Intercept) is:
+# The Random Eff variance (Intercept) is close, BUT not quite...
 
-Batch_Means <- vector()
+SS_Between <- vector()
 for(i in levels(Dyestuff[,1])){
-Batch_Means[i] <- mean(Dyestuff[Dyestuff$Batch==i,"Yield"])
+    SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
+        mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
 }
 
-sd(Batch_Means)
+sqrt(sum(SS_Between)/nrow(Dyestuff))
+
+#[1] 43.34263 compared to 42.00. Reducing the denominator (degrees of freedom instead of number of total observations)
+# would only increase the result, moving it further from 42.00. Why this discrepancy? I don't know.
