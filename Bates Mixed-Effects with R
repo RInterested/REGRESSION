@@ -45,6 +45,6 @@ sqrt(sum(SS_Between)/nrow(Dyestuff))
 # would only increase the result, moving it further from 42.00. Why this discrepancy? I don't know.
 
 require(arm)
-sqrt(var(ranef(fm01)$Batch)+1/6*sum((se.ranef(fm01)$Batch)^2))
+sqrt((var(ranef(fm01)$Batch))+(1/6*sum((se.ranef(fm01)$Batch)^2)))
 #(Intercept)
 #(Intercept)     42.0006
