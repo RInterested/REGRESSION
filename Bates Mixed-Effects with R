@@ -25,7 +25,7 @@ fm01
 
 sd_Batch <- vector()
 for(i in levels(Dyestuff[,1])){
-    sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
+  sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
 }
 
 sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
@@ -35,11 +35,16 @@ sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
 
 SS_Between <- vector()
 for(i in levels(Dyestuff[,1])){
-    SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
-        mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
+  SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
+                       mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
 }
 
 sqrt(sum(SS_Between)/nrow(Dyestuff))
 
 #[1] 43.34263 compared to 42.00. Reducing the denominator (degrees of freedom instead of number of total observations)
 # would only increase the result, moving it further from 42.00. Why this discrepancy? I don't know.
+
+require(arm)
+sqrt(var(ranef(fm01)$Batch)+1/6*sum((se.ranef(fm01)$Batch)^2))
+#(Intercept)
+#(Intercept)     42.0006
