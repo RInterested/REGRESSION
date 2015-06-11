@@ -37,5 +37,5 @@ Batch_Means <- vector()
 for(i in levels(Dyestuff[,1])){
 Batch_Means[i] <- mean(Dyestuff[Dyestuff$Batch==i,"Yield"])
 }
-All_Mean<-mean(Batch_Means)
+
 sd(Batch_Means)
