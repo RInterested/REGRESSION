@@ -12,7 +12,7 @@ print(dotplot(reorder(Batch, Yield) ~ Yield, Dyestuff,
 fm01 <- lmer(Yield ~ 1 + (1|Batch), Dyestuff)
 fm01
 
-## Notice that the variability between Batch-es in the Random
+## Notice that the Residual variability between Batch-es in the Random
 ## effects...
 
 #Random effects:
@@ -20,12 +20,22 @@ fm01
 #Batch    (Intercept) 42.00   
 #Residual             49.51 
 
-## ...is not the same as the sd of the means in Yield for each
-## Batch:
+# The Residual of the the Rand. Effects is: # 49.51, while 
+# The square root of the quadratic mean of SD's is:
 
-ave_yields <- vector()
+sd_Batch <- vector()
 for(i in levels(Dyestuff[,1])){
-    ave_yields[i] <- mean(Dyestuff[Dyestuff$Batch==i,'Yield'])
+    sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
 }
-str(ave_yields)
-sd(ave_yields)
+
+sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
+#[1] 49.5101
+
+# The Random Eff variance (Intercept) is:
+
+Batch_Means <- vector()
+for(i in levels(Dyestuff[,1])){
+Batch_Means[i] <- mean(Dyestuff[Dyestuff$Batch==i,"Yield"])
+}
+All_Mean<-mean(Batch_Means)
+sd(Batch_Means)
