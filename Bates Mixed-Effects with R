@@ -1,7 +1,8 @@
 require(lme4)
 str(Dyestuff)
 library(lattice)
-plot(Dyestuff)
+plot(Dyestuff, col = 'wheat')
+abline(h=mean(Dyestuff$Yield),col='firebrick')
 xyplot(Yield~Batch,Dyestuff)
 
 print(dotplot(reorder(Batch, Yield) ~ Yield, Dyestuff,
@@ -20,8 +21,8 @@ fm01
 #Batch    (Intercept) 42.00   
 #Residual             49.51 
 
-# The Residual of the the Rand. Effects is: # 49.51, while 
-# The square root of the quadratic mean of SD's is:
+# The Residual of the the Rand. Effects is: # 49.51, equal to 
+# the square root of the quadratic mean of SD's is:
 
 sd_Batch <- vector()
 for(i in levels(Dyestuff[,1])){
@@ -46,7 +47,7 @@ sqrt(sum(SS_Between)/nrow(Dyestuff))
 
 require(arm)
 sqrt((var(ranef(fm01)$Batch))+(1/6*sum((se.ranef(fm01)$Batch)^2)))
-#(Intercept)
+
 #(Intercept)     42.0006
 
 fm01
@@ -59,16 +60,17 @@ ranef(fm01)
 #$Batch
 #(Intercept)
 #A -17.6068515 # So 1527-17.6068515 = 1509.393 (?)
-#B   0.3912634
-#C  28.5622258
-#D -23.0845386
-#E  56.7331882
-#F -44.9952872
+#B   0.3912634 # So 1527+0.3912634 = 1527.391 (?)
+#C  28.5622258 # So 1527+28.5622258 = 1555.562 (?)
+#D -23.0845386 # So 1527-23.0845386 = 1503.915 (?)
+#E  56.7331882 # So 1527+6.7331882 = 1533.733 (?)
+#F -44.9952872 # So 1527-44.9952872 = 1482.005 (?)
 
-# These are different from the means in each category:
+# These are different from the means in each category. Ex:
 
-Dyestuff[Dyestuff$Batch=='A','Yield']
-#[1] 1545 1440 1440 1520 1580
+mean(Dyestuff[Dyestuff$Batch=='B','Yield'])
+#[[1] 1528
+
 VarCorr(fm01)
 se.ranef(fm01)$Batch
 summary(aov(Yield~Batch, Dyestuff))
@@ -81,7 +83,7 @@ summary(aov(Yield~Batch, Dyestuff))
 SS_Ba <- vector()
 for(i in levels(Dyestuff[,1])){
     SS_Ba[i] <- sum((mean(Dyestuff[Dyestuff$Batch==i,'Yield'])-mean(Dyestuff$Yield))^2*
-    nrow(Dyestuff[Dyestuff$Batch==i,]))
+                        nrow(Dyestuff[Dyestuff$Batch==i,]))
 }
 sum(SS_Ba)
 
