@@ -25,7 +25,7 @@ fm01
 
 sd_Batch <- vector()
 for(i in levels(Dyestuff[,1])){
-  sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
+    sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
 }
 
 sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
@@ -35,8 +35,8 @@ sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
 
 SS_Between <- vector()
 for(i in levels(Dyestuff[,1])){
-  SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
-                       mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
+    SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
+                           mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
 }
 
 sqrt(sum(SS_Between)/nrow(Dyestuff))
@@ -48,3 +48,47 @@ require(arm)
 sqrt((var(ranef(fm01)$Batch))+(1/6*sum((se.ranef(fm01)$Batch)^2)))
 #(Intercept)
 #(Intercept)     42.0006
+
+fm01
+#...
+#Fixed Effects:
+#(Intercept)  
+#1527 
+
+ranef(fm01)
+#$Batch
+#(Intercept)
+#A -17.6068515 # So 1527-17.6068515 = 1509.393 (?)
+#B   0.3912634
+#C  28.5622258
+#D -23.0845386
+#E  56.7331882
+#F -44.9952872
+
+# These are different from the means in each category:
+
+Dyestuff[Dyestuff$Batch=='A','Yield']
+#[1] 1545 1440 1440 1520 1580
+VarCorr(fm01)
+se.ranef(fm01)$Batch
+summary(aov(Yield~Batch, Dyestuff))
+
+#summary(aov(Yield~Batch, Dyestuff))
+#               Df Sum Sq Mean Sq F value Pr(>F)   
+#   Batch        5  56358   11272   4.598 0.0044 **
+#   Residuals   24  58830    2451     
+
+SS_Ba <- vector()
+for(i in levels(Dyestuff[,1])){
+    SS_Ba[i] <- sum((mean(Dyestuff[Dyestuff$Batch==i,'Yield'])-mean(Dyestuff$Yield))^2*
+    nrow(Dyestuff[Dyestuff$Batch==i,]))
+}
+sum(SS_Ba)
+
+#[1] 56357.5
+
+SS_Tot <- vector()
+for(i in 1:nrow(Dyestuff)){
+    SS_Tot[i] <- (Dyestuff$Yield[i]-mean(Dyestuff$Yield))^2
+}
+sum(SS_Tot) # This is 56358 + 58830 = 115188
