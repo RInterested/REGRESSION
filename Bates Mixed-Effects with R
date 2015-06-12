@@ -26,7 +26,7 @@ fm01
 
 sd_Batch <- vector()
 for(i in levels(Dyestuff[,1])){
-    sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
+  sd_Batch[i] <- sd(Dyestuff[Dyestuff$Batch==i,'Yield'])
 }
 
 sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
@@ -36,8 +36,8 @@ sqrt(sum(sd_Batch^2)/nlevels(Dyestuff$Batch))
 
 SS_Between <- vector()
 for(i in levels(Dyestuff[,1])){
-    SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
-                           mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
+  SS_Between[i] <- ((mean(Dyestuff[Dyestuff$Batch==i,"Yield"])-
+                       mean(Dyestuff$Yield))^2)*sum(Dyestuff$Batch==i)
 }
 
 sqrt(sum(SS_Between)/nrow(Dyestuff))
@@ -82,8 +82,8 @@ summary(aov(Yield~Batch, Dyestuff))
 
 SS_Ba <- vector()
 for(i in levels(Dyestuff[,1])){
-    SS_Ba[i] <- sum((mean(Dyestuff[Dyestuff$Batch==i,'Yield'])-mean(Dyestuff$Yield))^2*
-                        nrow(Dyestuff[Dyestuff$Batch==i,]))
+  SS_Ba[i] <- sum((mean(Dyestuff[Dyestuff$Batch==i,'Yield'])-mean(Dyestuff$Yield))^2*
+                    nrow(Dyestuff[Dyestuff$Batch==i,]))
 }
 sum(SS_Ba)
 
@@ -91,6 +91,15 @@ sum(SS_Ba)
 
 SS_Tot <- vector()
 for(i in 1:nrow(Dyestuff)){
-    SS_Tot[i] <- (Dyestuff$Yield[i]-mean(Dyestuff$Yield))^2
+  SS_Tot[i] <- (Dyestuff$Yield[i]-mean(Dyestuff$Yield))^2
 }
 sum(SS_Tot) # This is 56358 + 58830 = 115188
+
+fm01ML <- lmer(Yield ~ 1 + (1|Batch), Dyestuff, REML=F)
+fm01ML
+
+summary(Dyestuff2)
+plot(Dyestuff2, col = 'lightgreen')
+abline(h=mean(Dyestuff2$Yield),col='firebrick')
+
+fm01ML <- lmer(Yield ~ 1 + (1|Batch), Dyestuff, REML=F, verbose=1)
