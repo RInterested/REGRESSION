@@ -64,7 +64,7 @@ sd(coefficients(fm1)$Subject[,2])
 # So let's look at the random effects as they are understood: THE VARIABILITY in the two parameters: intercept and slope:
 
 ranef(fm1)
-$Subject
+#$Subject
 #    (Intercept)        Days
 #308   2.2585654   9.1989719
 #309 -40.3985769  -8.6197032
