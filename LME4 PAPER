@@ -133,7 +133,7 @@ parsedFormula<-lFormula(formula= Reaction~Days+(Days|Subject),data= sleepstudy)
 #180           1    9 That is 18 subjects x 10 observations each
 
 #$reTrms
-#$reTrms$Zt
+#$reTrms$Zt The Z matrix
 #$36 x 180 sparse Matrix of class "dgCMatrix" THE RANDOM EFFECTS MATRIX: 36 COLUMNS - 18 SUBJECTS: Each subject selected ("1")
 #10 times, because of ten observations; and for every subject a second row indicating the Day from 0 to 9:
 # Subject "308" is the first of the 18 subjects:
@@ -166,3 +166,24 @@ $reTrms$Lambdat
 #[34,] .                                               0.23090960 .         .         
 #[35,]                                       .         .          0.9667328 0.01516906
 #[36,]                                       .         .          .         0.23090960
+
+#$reTrms$flist
+#    Subject
+#1       308
+#2       308
+#...
+#179     372
+#180     372
+
+#$reTrms$cnms The terminology
+#$reTrms$cnms$Subject
+#[1] "(Intercept)" "Days"     
+
+#$reTrms$Ztlist # Looks like the Z matrix all over again.
+#$reTrms$Ztlist$`Days | Subject`
+#36 x 180 sparse Matrix of class "dgCMatrix"
+#                                                                                                                                                                                 
+#308 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#308 0 1 2 3 4 5 6 7 8 9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#309 . . . . . . . . . . 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#309 . . . . . . . . . . 0 1 2 3 4 5 6 7 8 9
