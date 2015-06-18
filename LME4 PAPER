@@ -98,3 +98,52 @@ sd(ranef(fm1)$Subject[,1])
 #[1] 21.59594
 sd(ranef(fm1)$Subject[,2])
 #[1] 5.455217
+
+# About the matrices:
+
+parsedFormula<-lFormula(formula= Reaction~Days+(Days|Subject),data= sleepstudy)
+
+
+# $fr I guess the dataframe: 10 observations for each of the 18 subjects
+#    Reaction Days Subject
+#1   249.5600    0     308
+#2   258.7047    1     308
+#3   250.8006    2     308
+#...
+#179 369.1417    8     372
+#180 364.1236    9     372
+
+#$X Matrix X of fixed effects:
+#    (Intercept) Days
+#1             1    0
+#2             1    1
+#3             1    2
+#4             1    3
+#5             1    4
+#6             1    5
+#7             1    6
+#8             1    7
+#9             1    8
+#10            1    9
+#11            1    0
+#12            1    1
+#...
+#178           1    7
+#179           1    8
+#180           1    9 That is 18 subjects x 10 observations each
+
+#$reTrms
+#$reTrms$Zt
+#$36 x 180 sparse Matrix of class "dgCMatrix" THE RANDOM EFFECTS MATRIX: 36 COLUMNS - 18 SUBJECTS: Each subject selected ("1")
+#10 times, because of ten observations; and for every subject a second row indicating the Day from 0 to 9:
+# Subject "308" is the first of the 18 subjects:
+
+#308 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#308 . 1 2 3 4 5 6 7 8 9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#309 . . . . . . . . . . 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#309 . . . . . . . . . . . 1 2 3 4 5 6 7 8 9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#310 . . . . . . . . . . . . . . . . . . . . 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#...
+#371 . . . . . . .                                                                                                                  . . . . . . . . . . . 1 2 3 4 5 6 7 8 9 . . . .
+#372 . . . . . . .                                                                                                                                 . . . . . . 1 1 1 1 1 1 1 1 1 1
+#372 . . . . . . .                                                                                                                                 . . . . . . . 1 2 3 4 5 6 7 8 9
