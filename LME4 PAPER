@@ -9,7 +9,7 @@ require(lme4)
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
 fm1
 
-#Random effects:
+# Random effects:
 # Groups   Name        Std.Dev. Corr
 # Subject  (Intercept) 24.740       
 #          Days         5.922   0.07
@@ -20,7 +20,7 @@ fm1
 #      251.41        10.47 
 
 coefficients(fm1)
-#$Subject There are 18 subjects, each with its intercept and slope.
+# $Subject There are 18 subjects, each with its intercept and slope.
 #    (Intercept)       Days
 #308    253.6637 19.6662579
 #309    211.0065  1.8475828
@@ -41,12 +41,12 @@ coefficients(fm1)
 #371    252.2121  9.4791309
 #372    263.7196 11.7513157
 
-# The average of the intercept and slopes of random effect COINCIDES with:
+# The average of the intercept and slopes of the different subjects COINCIDES with:
 
 mean(coefficients(fm1)$Subject[,1])
-[1] 251.4051
+#[1] 251.4051
 mean(coefficients(fm1)$Subject[,2])
-[1] 10.46729
+#[1] 10.46729
 
 # The fixed effects intercept and slopes.
 # Notice that in the summary we get the SD of both the intercept and slope, because we don't care about what their specific
@@ -55,8 +55,46 @@ mean(coefficients(fm1)$Subject[,2])
 # The calculations of the SD's are close but not quite:
 
 sd(coefficients(fm1)$Subject[,1])
-[1] 21.59594
+#[1] 21.59594
 sd(coefficients(fm1)$Subject[,2])
-[1] 5.455217
+#[1] 5.455217
 
 #... the same as the values for the sd produced by lmer.
+
+# So let's look at the random effects as they are understood: THE VARIABILITY in the two parameters: intercept and slope:
+
+ranef(fm1)
+$Subject
+#    (Intercept)        Days
+#308   2.2585654   9.1989719
+#309 -40.3985769  -8.6197032
+#310 -38.9602458  -5.4488799
+#330  23.6904985  -4.8143313
+#331  22.2602027  -3.0698946
+#332   9.0395259  -0.2721707
+#333  16.8404311  -0.2236244
+#334  -7.2325792   1.0745761
+#335  -0.3336958 -10.7521591
+#337  34.8903508   8.6282840
+#349 -25.2101104   1.1734142
+#350 -13.0699567   6.6142050
+#351   4.5778352  -3.0152572
+#352  20.8635924   3.5360133
+#369   3.2754530   0.8722166
+#370 -25.6128694   4.8224646
+#371   0.8070397  -0.9881551
+#372  12.3145393   1.2840297
+
+# And here is the proof that they are assumed to come from a Normal with mean zero:
+
+mean(ranef(fm1)$Subject[,1])
+#[1] 5.64995e-13
+mean(ranef(fm1)$Subject[,2])
+#[1] 9.448618e-14
+
+# Doing a SD of these random effects is not going to coincide with the output, although it will be approximate..
+
+sd(ranef(fm1)$Subject[,1])
+#[1] 21.59594
+sd(ranef(fm1)$Subject[,2])
+#[1] 5.455217
