@@ -1,0 +1,62 @@
+#Fitting linear mixed-effects models usinglme4Douglas BatesU. of Wisconsin - 
+# Douglas Bates Madison
+#Martin MächlerETH Zurich
+#Benjamin M. Bolker McMaster University
+#Steven C. Walker McMaster University
+
+require(lme4)
+
+fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
+fm1
+
+#Random effects:
+# Groups   Name        Std.Dev. Corr
+# Subject  (Intercept) 24.740       
+#          Days         5.922   0.07
+# Residual             25.592       
+# Number of obs: 180, groups:  Subject, 18
+# Fixed Effects:
+# (Intercept)         Days  
+#      251.41        10.47 
+
+coefficients(fm1)
+#$Subject There are 18 subjects, each with its intercept and slope.
+#    (Intercept)       Days
+#308    253.6637 19.6662579
+#309    211.0065  1.8475828
+#310    212.4449  5.0184060
+#330    275.0956  5.6529547
+#331    273.6653  7.3973914
+#332    260.4446 10.1951153
+#333    268.2455 10.2436615
+#334    244.1725 11.5418620
+#335    251.0714 -0.2848732
+#337    286.2955 19.0955699
+#349    226.1950 11.6407002
+#350    238.3351 17.0814910
+#351    255.9829  7.4520288
+#352    272.2687 14.0032993
+#369    254.6806 11.3395026
+#370    225.7922 15.2897506
+#371    252.2121  9.4791309
+#372    263.7196 11.7513157
+
+# The average of the intercept and slopes of random effect COINCIDES with:
+
+mean(coefficients(fm1)$Subject[,1])
+[1] 251.4051
+mean(coefficients(fm1)$Subject[,2])
+[1] 10.46729
+
+# The fixed effects intercept and slopes.
+# Notice that in the summary we get the SD of both the intercept and slope, because we don't care about what their specific
+# values are.
+
+# The calculations of the SD's are close but not quite:
+
+sd(coefficients(fm1)$Subject[,1])
+[1] 21.59594
+sd(coefficients(fm1)$Subject[,2])
+[1] 5.455217
+
+#... the same as the values for the sd produced by lmer.
