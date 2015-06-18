@@ -154,7 +154,7 @@ parsedFormula<-lFormula(formula= Reaction~Days+(Days|Subject),data= sleepstudy)
 #$reTrms$Gp # Groups in random effects
 # [1]  0 36 # 36 subjects
 
-#$reTrms$Lambdat
+#$reTrms$Lambdat Σθ=σ2ΛθΛ⊤θ
 #$36 x 36 sparse Matrix of class "dgCMatrix" # Diagonal matrix
 
 #[1,] 0.9667328 0.01516906 .         .          .         .          .         .          .         .          .         .          .         .          .         .         
