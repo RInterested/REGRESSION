@@ -6,6 +6,9 @@
 
 require(lme4)
 
+## To get more manageable matrices, we can cut down the dataset. The results in the rest of the document, though, are
+## for the entire dataset. Here's the subsetting code to make the dataset smaller:
+
 sleepstudy <- sleepstudy[sleepstudy$Days==0:3 & sleepstudy$Subject %in% c(351, 369, 371), ]
 
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
