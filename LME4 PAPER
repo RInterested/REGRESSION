@@ -102,7 +102,7 @@ sd(ranef(fm1)$Subject[,2])
 # About the matrices:
 
 parsedFormula<-lFormula(formula= Reaction~Days+(Days|Subject),data= sleepstudy)
-
+parsedFormula
 
 # $fr I guess the dataframe: 10 observations for each of the 18 subjects
 #    Reaction Days Subject
