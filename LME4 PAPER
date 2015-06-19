@@ -6,45 +6,17 @@
 
 require(lme4)
 
-## To get more manageable matrices, we can cut down the dataset. The results in the rest of the document, though, are
-## for the entire dataset. Here's the subsetting code to make the dataset smaller:
+## To get more manageable matrices, we can cut down the dataset:
 
 sleepstudy <- sleepstudy[sleepstudy$Days==0:3 & sleepstudy$Subject %in% c(351, 369, 371), ]
 
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
 fm1
 
-# Random effects:
-# Groups   Name        Std.Dev. Corr
-# Subject  (Intercept) 24.740       
-#          Days         5.922   0.07
-# Residual             25.592       
-# Number of obs: 180, groups:  Subject, 18
-# Fixed Effects:
-# (Intercept)         Days  
-#      251.41        10.47 
 
 coefficients(fm1)
 # $Subject There are 18 subjects, each with its intercept and slope.
-#    (Intercept)       Days
-#308    253.6637 19.6662579
-#309    211.0065  1.8475828
-#310    212.4449  5.0184060
-#330    275.0956  5.6529547
-#331    273.6653  7.3973914
-#332    260.4446 10.1951153
-#333    268.2455 10.2436615
-#334    244.1725 11.5418620
-#335    251.0714 -0.2848732
-#337    286.2955 19.0955699
-#349    226.1950 11.6407002
-#350    238.3351 17.0814910
-#351    255.9829  7.4520288
-#352    272.2687 14.0032993
-#369    254.6806 11.3395026
-#370    225.7922 15.2897506
-#371    252.2121  9.4791309
-#372    263.7196 11.7513157
+
 
 # The average of the intercept and slopes of the different subjects COINCIDES with:
 
@@ -53,7 +25,7 @@ mean(coefficients(fm1)$Subject[,1])
 mean(coefficients(fm1)$Subject[,2])
 #[1] 10.46729
 
-# The fixed effects intercept and slopes.
+
 # Notice that in the summary we get the SD of both the intercept and slope, because we don't care about what their specific
 # values are.
 
@@ -69,26 +41,6 @@ sd(coefficients(fm1)$Subject[,2])
 # So let's look at the random effects as they are understood: THE VARIABILITY in the two parameters: intercept and slope:
 
 ranef(fm1)
-#$Subject
-#    (Intercept)        Days
-#308   2.2585654   9.1989719
-#309 -40.3985769  -8.6197032
-#310 -38.9602458  -5.4488799
-#330  23.6904985  -4.8143313
-#331  22.2602027  -3.0698946
-#332   9.0395259  -0.2721707
-#333  16.8404311  -0.2236244
-#334  -7.2325792   1.0745761
-#335  -0.3336958 -10.7521591
-#337  34.8903508   8.6282840
-#349 -25.2101104   1.1734142
-#350 -13.0699567   6.6142050
-#351   4.5778352  -3.0152572
-#352  20.8635924   3.5360133
-#369   3.2754530   0.8722166
-#370 -25.6128694   4.8224646
-#371   0.8070397  -0.9881551
-#372  12.3145393   1.2840297
 
 # And here is the proof that they are assumed to come from a Normal with mean zero:
 
@@ -108,87 +60,3 @@ sd(ranef(fm1)$Subject[,2])
 
 parsedFormula<-lFormula(formula= Reaction~Days+(Days|Subject),data= sleepstudy)
 parsedFormula
-
-# $fr I guess the dataframe: 10 observations for each of the 18 subjects
-#    Reaction Days Subject
-#1   249.5600    0     308
-#2   258.7047    1     308
-#3   250.8006    2     308
-#...
-#179 369.1417    8     372
-#180 364.1236    9     372
-
-#$X Matrix X of fixed effects:
-#    (Intercept) Days
-#1             1    0
-#2             1    1
-#3             1    2
-#4             1    3
-#5             1    4
-#6             1    5
-#7             1    6
-#8             1    7
-#9             1    8
-#10            1    9
-#11            1    0
-#12            1    1
-#...
-#178           1    7
-#179           1    8
-#180           1    9 That is 18 subjects x 10 observations each
-
-#$reTrms
-#$reTrms$Zt The Z matrix
-#$36 x 180 sparse Matrix of class "dgCMatrix" THE RANDOM EFFECTS MATRIX: 36 COLUMNS - 18 SUBJECTS: Each subject selected ("1")
-#10 times, because of ten observations; and for every subject a second row indicating the Day from 0 to 9:
-# Subject "308" is the first of the 18 subjects:
-
-#308 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#308 . 1 2 3 4 5 6 7 8 9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#309 . . . . . . . . . . 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#309 . . . . . . . . . . . 1 2 3 4 5 6 7 8 9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#310 . . . . . . . . . . . . . . . . . . . . 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#...
-#371 . . . . . . .                                                                                                                  . . . . . . . . . . . 1 2 3 4 5 6 7 8 9 . . . .
-#372 . . . . . . .                                                                                                                                 . . . . . . 1 1 1 1 1 1 1 1 1 1
-#372 . . . . . . .                                                                                                                                 . . . . . . . 1 2 3 4 5 6 7 8 9
-
-#reTrms$theta # Random effect parameters theta
-# [1] 0.96673279 0.01516906 0.23090960
-
-#$reTrms$Gp # Groups in random effects
-# [1]  0 36 # 36 subjects
-
-#$reTrms$Lambdat Σθ=σ2ΛθΛ⊤θ
-#$36 x 36 sparse Matrix of class "dgCMatrix" # Diagonal matrix
-
-#[1,] 0.9667328 0.01516906 .         .          .         .          .         .          .         .          .         .          .         .          .         .         
-#[2,] .         0.23090960 .         .          .         .          .         .          .         .          .         .          .         .          .         .         
-#[3,] .         .          0.9667328 0.01516906 .         .          .         .          .         .          .         .          .         .          .         .         
-#[4,] .         .          .         0.23090960 .         .          .         .          .         .          .         .          .         .          .         .         
-#...
-#[33,]                                       0.9667328 0.01516906 .         .         
-#[34,] .                                               0.23090960 .         .         
-#[35,]                                       .         .          0.9667328 0.01516906
-#[36,]                                       .         .          .         0.23090960
-
-#$reTrms$flist
-#    Subject
-#1       308
-#2       308
-#...
-#179     372
-#180     372
-
-#$reTrms$cnms The terminology
-#$reTrms$cnms$Subject
-#[1] "(Intercept)" "Days"     
-
-#$reTrms$Ztlist # Looks like the Z matrix all over again.
-#$reTrms$Ztlist$`Days | Subject`
-#36 x 180 sparse Matrix of class "dgCMatrix"
-#                                                                                                                                                                                 
-#308 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#308 0 1 2 3 4 5 6 7 8 9 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#309 . . . . . . . . . . 1 1 1 1 1 1 1 1 1 1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#309 . . . . . . . . . . 0 1 2 3 4 5 6 7 8 9
