@@ -1,0 +1,74 @@
+##http://www.r-bloggers.com/hierarchical-linear-models-and-lmer/
+
+rm(list = ls())
+set.seed(2345)
+
+
+## FIRST LEVEL OR UNITS at the top of the hierarchy:
+
+schools <- 30 # Number of schools
+sch.df = data.frame(sch = c(1:schools), 
+                    rel_funding = rnorm(schools)) 
+# Attribute = rel_funding ~ Relative state funding, for example.
+
+head(sch.df, 3)
+
+sch.df <-  within(sch.df, {
+    E_alpha <-  1 - 0.15 * rel_funding # Expected alpha for each school
+    E_beta  <-  3 + 0.3  * rel_funding # Expected beta for each school
+})
+head(sch.df, 3)
+
+## Adding noise:
+
+library(mvtnorm)
+q = 0.2 # Variability of intercepts.
+r = 0.9 # Correlation between noise in intercepts and slopes
+s = 0.5 # Variability of slopes
+
+cov.matrix <-  matrix(c(q^2, r * q * s, r * q * s, s^2), 
+                      nrow = 2, byrow = TRUE)
+random.effects <-  rmvnorm(schools, mean = c(0, 0), sigma = cov.matrix) 
+
+sch.df$alpha = sch.df$E_alpha + random.effects[, 1]
+sch.df$beta = sch.df$E_beta + random.effects[, 2]
+head(sch.df, 3)
+
+plot(E_alpha ~ rel_funding,type = "l", col='orange', ylim=c(0.5,4), 
+     ylab= "Estimated values",data=sch.df)
+points(alpha ~ rel_funding, pch=19, cex=0.3, col= 'firebrick', data=sch.df)
+points(beta ~ rel_funding, pch=19, cex=0.3, col= 'firebrick', data=sch.df)
+lines(E_beta ~ rel_funding, col='orange', data=sch.df)
+text(-0.5, 1.2,bty = 'n', srt=-8 , col= 'red', "Estimated alpha values")
+text(-0.5, 3, bty = 'n', srt=15 , col= 'red', "Estimated beta values")
+
+## SECOND LEVEL OR MEASUREMENTS:
+
+indiv = 30
+M = indiv * schools  #Total number of observations
+
+## Now we create x, which is the equivalent of the socio-economical status for each
+## individual. We use the same for each unit-level (school):
+x.grid = seq(-4, 4, by = 8/indiv)[0:30]
+
+within.sch.df <-  data.frame(sch = sort(rep(c(1:schools), indiv)), 
+                             Indiv. = rep(c(1:indiv), schools), 
+                             x =rep(x.grid, schools))
+head(within.sch.df)
+
+flat.df = merge(sch.df, within.sch.df)
+
+## And y wil be the math score for each indiviual in each school:
+
+flat.df <-  within(flat.df, y <-  alpha + x * beta + 0.75 * rnorm(n = M))
+flat.df[1:35,]
+
+plot(y ~ x, type='l',flat.df[flat.df$sch==1,])
+for(i in seq(along=flat.df$sch)){
+lines(y ~ x, flat.df[flat.df$sch==i,], col=i)
+}
+
+## What we really know in practice:
+
+simple.df <-  flat.df[, c("sch", "rel_funding", "x", "y")]
+head(simple.df, 3)
