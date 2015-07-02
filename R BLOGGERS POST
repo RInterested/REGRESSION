@@ -45,7 +45,7 @@ text(-0.5, 3, bty = 'n', srt=15 , col= 'red', "Estimated beta values")
 ## SECOND LEVEL OR MEASUREMENTS:
 
 indiv = 30
-M = indiv * schools  #Total number of observations
+total = indiv * schools  #Total number of observations
 
 ## Now we create x, which is the equivalent of the socio-economical status for each
 ## individual. We use the same for each unit-level (school):
@@ -60,7 +60,7 @@ flat.df = merge(sch.df, within.sch.df)
 
 ## And y wil be the math score for each indiviual in each school:
 
-flat.df <-  within(flat.df, y <-  alpha + x * beta + 0.75 * rnorm(n = M))
+flat.df <-  within(flat.df, y <-  alpha + x * beta + 0.75 * rnorm(n = total))
 flat.df[1:35,]
 
 plot(y ~ x, type='l',flat.df[flat.df$sch==1,])
