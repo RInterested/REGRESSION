@@ -1,5 +1,4 @@
 ##http://www.r-bloggers.com/hierarchical-linear-models-and-lmer/
-
 rm(list = ls())
 set.seed(2345)
 
@@ -22,9 +21,9 @@ head(sch.df, 3)
 ## Adding noise:
 
 library(mvtnorm)
-q = 0.2 # Variability of intercepts.
+q = 0.2 # Variability of intercepts - standard deviation of intercepts
 r = 0.9 # Correlation between noise in intercepts and slopes
-s = 0.5 # Variability of slopes
+s = 0.5 # Variability of slopes - standard deviation of slopes
 
 cov.matrix <-  matrix(c(q^2, r * q * s, r * q * s, s^2), 
                       nrow = 2, byrow = TRUE)
