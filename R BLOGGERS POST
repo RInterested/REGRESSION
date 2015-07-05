@@ -1,4 +1,5 @@
 ##http://www.r-bloggers.com/hierarchical-linear-models-and-lmer/
+
 rm(list = ls())
 set.seed(2345)
 
@@ -27,7 +28,12 @@ s = 0.5 # Variability of slopes - standard deviation of slopes
 
 cov.matrix <-  matrix(c(q^2, r * q * s, r * q * s, s^2), 
                       nrow = 2, byrow = TRUE)
-random.effects <-  rmvnorm(schools, mean = c(0, 0), sigma = cov.matrix) 
+random.effects <-  rmvnorm(schools, 
+                mean = c(0, 0), sigma = cov.matrix) 
+
+## Notice that these ARE the random effects - they don't depend
+## on rel_funding, estimated alpha or estimated beta, although
+## they will be added to estimated alpha and estimated beta:
 
 sch.df$alpha = sch.df$E_alpha + random.effects[, 1]
 sch.df$beta = sch.df$E_beta + random.effects[, 2]
