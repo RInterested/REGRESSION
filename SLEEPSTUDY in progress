@@ -1,0 +1,52 @@
+require(lme4)
+
+sleepstudy <- sleepstudy[sleepstudy$Subject %in% c(309, 330, 371), ]
+par(bg = 'peachpuff')
+plot(1,type="n", xlim=c(0, 12), ylim=c(200, 360),
+     xlab='Days', ylab='Reaction')
+
+
+for (i in sleepstudy$Subject){
+    fit<-lm(Reaction ~ Days, sleepstudy[sleepstudy$Subject==i,])
+    lines(predict(fit), col=i, lwd=3)
+    
+    text(x=11, y=predict(fit, data.frame(Days=9)), cex=0.6,labels=i)
+}
+
+fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
+
+library(mosaic)
+parsedFormula<-lFormula(formula= Reaction~Days+(Days|Subject),data= sleepstudy)
+parsedFormula$reTrms
+
+Est_alpha<-NULL
+for (i in sleepstudy$Subject){
+Est_alpha[i] = coef(lm(Reaction~Days,sleepstudy[sleepstudy$Subject==i,]))[1]
+}
+Est_alpha
+
+Est_beta<-NULL
+for (i in sleepstudy$Subject){
+    Est_beta[i] = coef(lm(Reaction~Days,sleepstudy[sleepstudy$Subject==i,]))[2]
+}
+Est_beta
+
+sd_intercepts = sd(Est_alpha)
+sd_slopes = sd(Est_beta)
+correl = 0.9
+library(mvtnorm)
+set.seed(0)
+cov.matrix <-  matrix(c(correl^2, sd_intercepts* sd_slopes * correl, 
+            sd_intercepts* sd_slopes * correl, correl^2), nrow = 2,
+            byrow = TRUE)
+random.effects <-  rmvnorm(3, mean = c(0, 0), sigma = cov.matrix)
+
+
+sleepstudy$alpha = sort(rep(Est_alpha,10)) + sort(rep(random.effects[, 1],10))
+sleepstudy$beta = sort(rep(Est_beta,10)) + sort(rep(random.effects[, 2],10))
+head(sleepstudy)
+sleepstudy$Reaction <- sleepstudy$alpha + sleepstudy$beta + 10*rnorm(nrow(sleepstudy))
+head(sleepstudy)
+
+fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
+fm1
