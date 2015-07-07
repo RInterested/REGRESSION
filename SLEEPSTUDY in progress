@@ -50,3 +50,35 @@ head(sleepstudy)
 
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
 fm1
+
+====================================================================================================================
+CODE FOR AUTOMATED AND "MANUAL" GENERATION OF MATRICES:
+
+library(lme4)
+
+sleepstudy <- sleepstudy[sleepstudy$Subject %in% c(309, 330, 371), ]
+rownames(sleepstudy) <- NULL
+sleepstudy
+
+fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
+
+## Ji matrix:
+
+f <- gl(3,10)
+(J<-t(as(f,Class="sparseMatrix")))
+t_J <- t(J)
+
+## Xi = Raw model matrix random effects model:
+
+X <- getME(fm1,"mmList")
+t_X <- rbind(c(rep(1,30)),c(rep(0:9,3)))
+
+## Zi:
+
+Z<-KhatriRao(t_J,t_X)
+
+
+Z <- t(getME(fm1, "Z"))
+b <- getME(fm1,"b")
+
+======================================================================================================================
