@@ -66,21 +66,28 @@ fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
 
 ## Ji matrix:
 
+
 f <- gl(3,10)
-(J<-t(as(f,Class="sparseMatrix")))
-t_J <- t(J)
+Ji<-t(as(f,Class="sparseMatrix"))
+(t_Ji <- t(Ji))
 
 ## Xi = Raw model matrix random effects model:
 
-X <- getME(fm1,"mmList")
-t_X <- rbind(c(rep(1,30)),c(rep(0:9,3)))
+Xi <- getME(fm1,"mmList")
+t_Xi <- rbind(c(rep(1,30)),c(rep(0:9,3)))
 
 ## Zi:
 
-Z<-KhatriRao(t_J,t_X)
+Zi<-t(KhatriRao(t_Ji,t_Xi))
+as.matrix(Zi)
 
-
-Z <- t(getME(fm1, "Z"))
+## b:
 b <- getME(fm1,"b")
+
+
+## Zb:
+
+as.matrix(Zi)%*%b
+
 
 ======================================================================================================================
