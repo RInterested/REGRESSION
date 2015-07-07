@@ -3,6 +3,8 @@
 require(lme4)
 
 sleepstudy <- sleepstudy[sleepstudy$Subject %in% c(309, 330, 371), ]
+rownames(sleepstudy) <- NULL
+
 par(bg = 'peachpuff')
 plot(1,type="n", xlim=c(0, 12), ylim=c(200, 360),
      xlab='Days', ylab='Reaction')
