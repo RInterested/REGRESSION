@@ -1,3 +1,5 @@
+##http://stackoverflow.com/questions/30896540/extract-raw-model-matrix-of-random-effects-from-lmer-objects-lme4-r
+
 require(lme4)
 
 sleepstudy <- sleepstudy[sleepstudy$Subject %in% c(309, 330, 371), ]
