@@ -52,9 +52,58 @@ head(sleepstudy)
 sleepstudy$Reaction <- sleepstudy$alpha + sleepstudy$beta + 10*rnorm(nrow(sleepstudy))
 head(sleepstudy)
 
+## Model with Different Intersects for the random effect Subjects, and Different Slopes:
+
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
 fm1
+#Linear mixed model fit by REML ['lmerMod']
+#Formula: Reaction ~ Days + (Days | Subject)
+#   Data: sleepstudy
+#REML criterion at convergence: 265.9584
+#Random effects:
+# Groups   Name        Std.Dev. Corr
+# Subject  (Intercept) 40.804       
+#          Days         3.097   0.41
+# Residual             20.037       
+#Number of obs: 30, groups:  Subject, 3
+#Fixed Effects:
+#(Intercept)         Days  
+#    249.459        4.819  
+coef(fm1)
+#$Subject
+#    (Intercept)     Days
+#309    205.3013 2.407574
+#330    282.3220 4.419554
+#371    260.7527 7.631175
 
+## Model with Different Intersects but SAME slope:
+
+fm2<-lmer(Reaction~Days+(1|Subject), sleepstudy)
+#Linear mixed model fit by REML ['lmerMod']
+#Formula: Reaction ~ Days + (1 | Subject)
+#   Data: sleepstudy
+#REML criterion at convergence: 268.057
+#Random effects:
+# Groups   Name        Std.Dev.
+# Subject  (Intercept) 48.12   
+# Residual             21.50   
+#Number of obs: 30, groups:  Subject, 3
+#Fixed Effects:
+#(Intercept)         Days  
+#    249.459        4.819  
+
+coef(fm2)
+
+#$Subject
+#    (Intercept)     Days
+#309    194.6402 4.819434
+#330    280.9060 4.819434
+#371    272.8299 4.819434
+
+AIC(fm1,fm2)
+#    df      AIC
+#fm1  6 277.9584
+#fm2  4 276.0570
 ====================================================================================================================
 CODE FOR AUTOMATED AND "MANUAL" GENERATION OF MATRICES:
 
