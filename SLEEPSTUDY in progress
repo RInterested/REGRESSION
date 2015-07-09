@@ -95,7 +95,8 @@ mixed(Reaction~Days+(Days|Subject), sleepstudy)
 
 par(mfrow=c(3,1))
 library(lattice)
-xyplot(Reaction ~ Days | Subject, groups = Subject, data = sleepstudy, type=c('p','r'))
+xyplot(Reaction ~ Days | Subject, groups = Subject, data = sleepstudy, 
+       pch=19, lwd=2, type=c('p','r'))
 
 
 ## Model with Different Intersects but SAME slope:
