@@ -86,6 +86,12 @@ coef(fm1)
 #330    282.3220 4.419554
 #371    260.7527 7.631175
 
+library(afex)
+mixed(Reaction~Days+(Days|Subject), sleepstudy)
+
+#  Effect    F ndf  ddf F.scaling p.value
+#1   Days 4.82   1 2.00      1.00     .16
+
 ## Model with Different Intersects but SAME slope:
 --------------------------------------------------
 
@@ -119,6 +125,8 @@ AIC(fm1,fm2)
 library(afex)
 mixed(Reaction~Days+(1|Subject), sleepstudy)
 
+#  Effect     F ndf   ddf F.scaling p.value
+#1   Days 12.43   1 26.00      1.00    .002
 
 ====================================================================================================================
 CODE FOR AUTOMATED AND "MANUAL" GENERATION OF MATRICES:
