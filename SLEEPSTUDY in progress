@@ -52,6 +52,8 @@ head(sleepstudy)
 sleepstudy$Reaction <- sleepstudy$alpha + sleepstudy$beta + 10*rnorm(nrow(sleepstudy))
 head(sleepstudy)
 
+=============================================================================================================================
+
 ## Model with Different Intersects for the random effect Subjects, and Different Slopes:
 
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
