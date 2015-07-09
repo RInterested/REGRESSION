@@ -54,6 +54,7 @@ head(sleepstudy)
 
 =============================================================================================================================
 
+library(lme4)
 sleepstudy <- sleepstudy[sleepstudy$Subject %in% c(309, 330, 371), ]
 rownames(sleepstudy) <- NULL
 sleepstudy
@@ -112,6 +113,7 @@ AIC(fm1,fm2)
 #    df      AIC
 #fm1  6 277.9584
 #fm2  4 276.0570
+
 ====================================================================================================================
 CODE FOR AUTOMATED AND "MANUAL" GENERATION OF MATRICES:
 
