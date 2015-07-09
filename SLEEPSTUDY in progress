@@ -54,6 +54,12 @@ head(sleepstudy)
 
 =============================================================================================================================
 
+sleepstudy <- sleepstudy[sleepstudy$Subject %in% c(309, 330, 371), ]
+rownames(sleepstudy) <- NULL
+sleepstudy
+
+
+
 ## Model with Different Intersects for the random effect Subjects, and Different Slopes:
 
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
