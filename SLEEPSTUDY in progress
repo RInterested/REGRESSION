@@ -162,7 +162,7 @@ as.matrix(Zi)
 
 ## b:
 b <- getME(fm1,"b")
-
+b
 
 ## Zb:
 
