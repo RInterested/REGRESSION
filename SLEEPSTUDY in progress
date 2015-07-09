@@ -61,7 +61,8 @@ sleepstudy
 
 
 
-## Model with Different Intersects for the random effect Subjects, and Different Slopes:
+## Model with Different Intersects for the random effect, and Different Slopes:
+-------------------------------------------------------------------------------
 
 fm1<-lmer(Reaction~Days+(Days|Subject), sleepstudy)
 fm1
@@ -86,6 +87,7 @@ coef(fm1)
 #371    260.7527 7.631175
 
 ## Model with Different Intersects but SAME slope:
+--------------------------------------------------
 
 fm2<-lmer(Reaction~Days+(1|Subject), sleepstudy)
 #Linear mixed model fit by REML ['lmerMod']
@@ -113,6 +115,10 @@ AIC(fm1,fm2)
 #    df      AIC
 #fm1  6 277.9584
 #fm2  4 276.0570
+
+library(afex)
+mixed(Reaction~Days+(1|Subject), sleepstudy)
+
 
 ====================================================================================================================
 CODE FOR AUTOMATED AND "MANUAL" GENERATION OF MATRICES:
