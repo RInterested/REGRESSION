@@ -92,6 +92,10 @@ mixed(Reaction~Days+(Days|Subject), sleepstudy)
 #  Effect    F ndf  ddf F.scaling p.value
 #1   Days 4.82   1 2.00      1.00     .16
 
+library(lattice)
+xyplot(Reaction ~ Days | Subject, groups = Subject, data = sleepstudy, type=c('p','r'))
+
+
 ## Model with Different Intersects but SAME slope:
 --------------------------------------------------
 
