@@ -79,3 +79,9 @@ coef(lmer(y ~ x1|x2))
 #fit2  4 101.5556 So an OLS y ~ x1 + x2 is best!!
 #fit3  4 110.4370
 #fit4  5 118.5242
+
+## This is the case because x1 and x2 are CORRELATED:
+
+#cor(x1,x2)
+#[1] 0.8682812
+plot(x1,x2, pch=16, col='firebrick')
