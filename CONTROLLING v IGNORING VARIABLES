@@ -27,3 +27,55 @@ xyplot(y ~ x1, groups = x2, pch=19,
 
 scatterplot3d(x1,x2,y, type='h', pch=16,
               highlight.3d=T)
+
+
+## Linear regression IGNORING x2:
+
+lm(y ~ x1 + x2)
+
+#Coefficients:
+#(Intercept)           x1  
+#    0.7752          3.3151  
+
+
+## Linear regression CONTROLLING for x2:
+
+lm(y ~ x1 + x2)
+
+#Coefficients:
+#(Intercept)           x1           x2  
+#    -0.8767      -0.5991      10.7274 
+
+## What if we used a MIXED EFFECTS MODEL:
+
+require(lmer)
+
+#coef(lmer(y ~ x1 + (1|x2)))
+#$x2
+#  (Intercept)         x1
+#1    10.32812 -0.9185763
+#2    23.17116 -0.9185763
+#3    33.08425 -0.9185763
+
+## What about varying intercepts:
+
+coef(lmer(y ~ x1|x2))
+
+#$x2
+#          x1 (Intercept)
+#1 -1.1541831    10.95850
+#2 -0.6596263    21.69921
+#3 -0.3224040    29.02296
+
+## Which one is best?
+
+#fit1 <- lm(y ~ x1)
+#fit2 <- lm(y ~ x1 + x2)
+#fit3 <- lmer(y ~ x1 + (1|x2))
+#fit4 <- lmer(y ~ x1|x2)
+#AIC(fit1, fit2, fit3, fit4)
+#     df      AIC
+#fit1  3 181.3116
+#fit2  4 101.5556 So an OLS y ~ x1 + x2 is best!!
+#fit3  4 110.4370
+#fit4  5 118.5242
