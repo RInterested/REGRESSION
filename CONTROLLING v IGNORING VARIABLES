@@ -86,3 +86,15 @@ AIC(fit1, fit2, fit3, fit4)
 #cor(x1,x2)
 #[1] 0.8682812
 plot(x1,x2, pch=16, col='firebrick')
+
+# However, the plot with the superimposed lines resulting from the random effects coefficients is great:
+
+xyplot(y ~ x1, groups = x2, pch=19,
+       
+       panel = function(x, y,...) {
+         panel.xyplot(x, y,...);
+         panel.abline(lm(y ~ x1));
+         panel.abline(a=coef(fit4)$x2[1,2], b=coef(fit4)$x2[1,1],lty=2,col='blue');
+         panel.abline(a=coef(fit4)$x2[2,2], b=coef(fit4)$x2[2,1],lty=2,col='magenta');
+         panel.abline(a=coef(fit4)$x2[3,2], b=coef(fit4)$x2[3,1],lty=2,col='green')
+       })
