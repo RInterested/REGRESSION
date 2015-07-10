@@ -48,7 +48,7 @@ lm(y ~ x1 + x2)
 
 ## What if we used a MIXED EFFECTS MODEL:
 
-require(lmer)
+require(lme4)
 
 #coef(lmer(y ~ x1 + (1|x2)))
 #$x2
