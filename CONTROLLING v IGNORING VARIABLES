@@ -69,11 +69,12 @@ coef(lmer(y ~ x1|x2))
 
 ## Which one is best?
 
-#fit1 <- lm(y ~ x1)
-#fit2 <- lm(y ~ x1 + x2)
-#fit3 <- lmer(y ~ x1 + (1|x2))
-#fit4 <- lmer(y ~ x1|x2)
-#AIC(fit1, fit2, fit3, fit4)
+fit1 <- lm(y ~ x1)
+fit2 <- lm(y ~ x1 + x2)
+fit3 <- lmer(y ~ x1 + (1|x2))
+fit4 <- lmer(y ~ x1|x2)
+AIC(fit1, fit2, fit3, fit4)
+
 #     df      AIC
 #fit1  3 181.3116
 #fit2  4 101.5556 So an OLS y ~ x1 + x2 is best!!
