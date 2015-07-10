@@ -1,0 +1,29 @@
+##http://stats.stackexchange.com/questions/78828/is-there-a-difference-between-controlling-for-and-ignoring-other-variables-i
+
+library(scatterplot3d)
+
+x1 <- c(rnorm(10,3,1),rnorm(10,5,1),rnorm(10,7,1))
+
+x2 <- rep(c(1:3),each=10)
+
+y1 <- 2  -0.8 * x1[1:10] + 8 * x2[1:10] +rnorm(10)
+y2 <- 6  -0.8 * x1[11:20] + 8 * x2[11:20] +rnorm(10)
+y3 <- 8  -0.8 * x1[21:30] + 8 * x2[21:30] +rnorm(10)
+y <- c(y1,y2,y3)
+
+
+
+library(lattice)
+xyplot(y ~ x1, groups = x2, pch=19,
+       
+       panel = function(x, y,...) {
+         panel.xyplot(x, y,...);
+         panel.abline(lm(y ~ x1));
+         panel.abline(lm(y[1:10] ~ x1[1:10]),lty=2,col='blue');
+         panel.abline(lm(y[11:20] ~ x1[11:20]),lty=2,col='magenta');
+         panel.abline(lm(y[21:30] ~ x1[21:30]),lty=2,col='green')
+       })
+
+
+scatterplot3d(x1,x2,y, type='h', pch=16,
+              highlight.3d=T)
