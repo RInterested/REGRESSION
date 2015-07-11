@@ -1,5 +1,7 @@
 ##http://stats.stackexchange.com/questions/78828/is-there-a-difference-between-controlling-for-and-ignoring-other-variables-i
+##http://stats.stackexchange.com/questions/78828/is-there-a-difference-between-controlling-for-and-ignoring-other-variables-i
 
+set.seed(0)
 library(scatterplot3d)
 
 x1 <- c(rnorm(10,3,1),rnorm(10,5,1),rnorm(10,7,1))
@@ -23,10 +25,6 @@ xyplot(y ~ x1, groups = x2, pch=19,
          panel.abline(lm(y[11:20] ~ x1[11:20]),lty=2,col='magenta');
          panel.abline(lm(y[21:30] ~ x1[21:30]),lty=2,col='green')
        })
-
-
-scatterplot3d(x1,x2,y, type='h', pch=16,
-              highlight.3d=T)
 
 
 ## Linear regression IGNORING x2:
@@ -87,14 +85,20 @@ AIC(fit1, fit2, fit3, fit4)
 #[1] 0.8682812
 plot(x1,x2, pch=16, col='firebrick')
 
-# However, the plot with the superimposed lines resulting from the random effects coefficients is great:
+## However, the lines created with the random-effects coefficients look remarkable accurate:
 
 xyplot(y ~ x1, groups = x2, pch=19,
-       
        panel = function(x, y,...) {
          panel.xyplot(x, y,...);
-         panel.abline(lm(y ~ x1));
          panel.abline(a=coef(fit4)$x2[1,2], b=coef(fit4)$x2[1,1],lty=2,col='blue');
          panel.abline(a=coef(fit4)$x2[2,2], b=coef(fit4)$x2[2,1],lty=2,col='magenta');
          panel.abline(a=coef(fit4)$x2[3,2], b=coef(fit4)$x2[3,1],lty=2,col='green')
        })
+
+
+## ... although the plane created by the bivariate OLS doesn't look to bad either:
+
+library(scatterplot3d)
+plot1 <- scatterplot3d(x1,x2,y, type='h', pch=16,
+                       highlight.3d=T)
+plot1$plane3d(fit2)
