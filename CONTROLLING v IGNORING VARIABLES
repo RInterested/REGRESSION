@@ -70,7 +70,7 @@ coef(lmer(y ~ x1|x2))
 fit1 <- lm(y ~ x1)
 fit2 <- lm(y ~ x1 + x2)
 fit3 <- lmer(y ~ x1 + (1|x2))
-fit4 <- lmer(y ~ x1|x2)
+fit4 <- lmer(y ~ x1|x2, REML=F)
 AIC(fit1, fit2, fit3, fit4)
 
 #     df      AIC
