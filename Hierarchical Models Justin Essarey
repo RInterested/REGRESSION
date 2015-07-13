@@ -1,0 +1,301 @@
+########################
+# Lecture 10
+# Multi-level Modeling
+# POLS 509: The Linear Model
+# Dr. Justin Esarey
+########################
+## youtube lecture https://youtu.be/g_4z6o7XZbQ?list=PL0FC72005F8D3F7F2
+
+install.packages(c("pcse","plm","Hmisc","lme4","arm"), dep=T)
+
+library(foreign)
+library(pcse)	# a package enabling the estimation of Panel-Corrected Standard Errors
+library(plm)	# the panel linear models library.
+library(Hmisc)
+library(lme4)	# linear mixed effects models package
+library(arm)	# Gelman and Hill Functions
+
+# Check out the documentation for the PLM package:
+# http://cran.r-project.org/web/packages/plm/plm.pdf
+# http://cran.r-project.org/web/packages/plm/vignettes/plm.pdf
+
+set.seed(123456)
+N<-20
+T<-20
+
+beta.hlm<-c()
+beta.fe<-c()
+se.hlm<-c()
+se.fe<-c()
+
+
+for(m in 1:1000){ # We'll do the following 1,000 times
+  
+  if(round(m/50)==m/50){print(m, quote=F)}
+  # This will print every multiple of 50 in the m counter to 
+  # to let us know where we are in the loop.
+  
+  
+  ##fOR EACH OF TH 1,000 LOOPS WILL DO THE FOLLOWING SIMULATION WITH
+  ##400 OBERSVATIONS EACH:
+  
+  unit.effect<-runif(N, min=-2, max=2) # 20 numbers
+  y<-c()
+  unit<-c()
+  X<-c()
+  
+  k<-0 # k is a counter that is introduced here and will go up to 
+  # 400, which is N = 20  x  T = 20.
+  
+  for(i in 1:N){ # Number of units
+    
+    for(j in 1:T){ # Number of time points
+    
+      k<-k+1 # k increases by 1 with every pass.
+      # on the first pass it is 1 = 0 + 1.
+      
+      unit[k]<-i #i only goes up to 20, and each pass the unit
+      # on which j is working will be included in the vector
+      # so each N will appear T = 20
+      X[k]<-rnorm(1, mean=unit.effect[i], sd=1)
+      #x will be correlated with the unit.effect - unit heterogenity
+      y[k]<-1+0.25*X[k] + unit.effect[i] + rnorm(1,mean=0,sd=2)
+      # y for that observation will be 1/4 X
+      # plus noise. The unit effect changes the intercept. 
+    }
+  }
+  
+  model.re.lmer<-lmer(y ~ X + (1 | unit))
+  model.fe<-lm(y ~ X + as.factor(unit))
+  
+  beta.hlm[m]<-fixef(model.re.lmer)[2]
+  beta.fe[m]<-coef(model.fe)[2]
+  
+  se.hlm[m]<-sqrt(vcov(model.re.lmer)[2,2])
+  se.fe[m]<-sqrt(vcov(model.fe)[2,2])
+
+}
+
+plot(X, rep(unit.effect, each=T))
+
+boxplot(beta.hlm, beta.fe, names=c("HLM", "FE"))
+abline(h=0.25, lty=2)
+
+boxplot(se.hlm, se.fe, names=c("HLM", "FE"))
+
+sum(beta.hlm-1.96*se.hlm<=0)
+sum(beta.fe-1.96*se.fe<=0)
+
+
+
+
+
+for(m in 1:1000){
+  
+  if(round(m/50)==m/50){print(m, quote=F)}
+  unit.effect<-runif(N, min=-2, max=2)
+  y<-c()
+  unit<-c()
+  X<-c()
+  
+  k<-0
+  for(i in 1:N){
+    
+    for(j in 1:T){
+      
+      k<-k+1
+      unit[k]<-i
+      X[k]<-rnorm(1, mean=unit.effect[i], sd=1)
+      y[k]<-1+0*X[k]+unit.effect[i]+rnorm(1,mean=0,sd=2)
+      
+    }
+    
+    
+  }
+  
+  model.re.lmer<-lmer(y~X+(1 | unit))
+  model.fe<-lm(y~X+as.factor(unit))
+  
+  beta.hlm[m]<-fixef(model.re.lmer)[2]
+  beta.fe[m]<-coef(model.fe)[2]
+  
+  se.hlm[m]<-sqrt(vcov(model.re.lmer)[2,2])
+  se.fe[m]<-sqrt(vcov(model.fe)[2,2])
+  
+}
+
+boxplot(beta.hlm, beta.fe, names=c("HLM", "FE"))
+abline(h=2, lty=2)
+
+boxplot(se.hlm, se.fe, names=c("HLM", "FE"))
+abline(h=2, lty=2)
+
+sum(beta.hlm-1.96*se.hlm>=0 | beta.hlm+1.96*se.hlm<=0)
+sum(beta.fe-1.96*se.fe>=0 | beta.fe+1.96*se.fe<=0)
+
+
+
+
+
+
+
+
+read.dta("lecture10.dta")->data     # This is the same data we used for Lecture 9.
+
+
+# Data prep
+############
+
+data<-subset(data, data$year>1977 & data$year<2001)
+data<-subset(data, data$stname!="District of Columbia")
+attach(data)
+
+# per capita police spending, state + local
+policePC = policeex1/totalpop
+# per capita welfare spending, state + local
+welfarePC = welfare1/totalpop
+# per capita education spending, state + local
+edspendPC = edspend1/totalpop
+# log population
+logpop = log(totalpop)
+# log per capita income
+logpcinc = log(PInccapC)
+
+
+
+#############################################
+#
+#	Hierarchical Models
+#
+#############################################
+
+# Let's start by replicating models from last week's class
+
+# The random effects model, the simplest type of hierarchical model, can be estimated using the lmer package
+model.re.lmer<-lmer(murder~adperI+policePC+edspendPC+logpcinc+logpop+(1 | stfips))
+# compare to earlier model
+data.plm<-pdata.frame(data, index=c("stfips", "year"), drop.index=T, row.names=T)
+model.re.plm<-plm(murder~adperI+policePC+edspendPC+logpcinc+logpop, data=data.plm, model="random")
+summary(model.re.lmer)
+summary(model.re.plm)
+
+model.re.plm<-plm(murder~adperI+policePC+edspendPC+logpcinc+logpop, data=data.plm, model="random", random.method="amemiya")
+summary(model.re.plm)
+
+# Not quite the same! Turns out the estimation methods are slightly different. plm uses FGLS, feasible generalized
+# least squares. This is a modification of traditional OLS using weighted covariate (X) vectors, where the weights
+# are derived from the estimated u-hat residual terms from an ordinary OLS estmation.
+# lmer uses maximum-likelihood estimation of GLS. These can give different answers (they do in this case!) under some 
+# conditions, particularly in smallish samples. 
+
+# We will use the maximum likelihood based estimates for the remainder of our analysis.
+# If you want to see the equations for all the states in this model:
+coef(model.re.lmer)
+
+# If you want to see the averaged (over all states) equation:
+fixef(model.re.lmer)
+se.fixef(model.re.lmer)
+
+# If you want to see the intercept shift away from the averaged intercept for each state:
+ranef(model.re.lmer)
+se.ranef(model.re.lmer)
+# note: standard errors are all the same because the samples sizes are the same for each state.
+
+# make a CI plot of the intercepts
+mean<-unlist(ranef(model.re.lmer)$stfips)
+sd<-unlist(se.ranef(model.re.lmer)$stfips)
+xlabels=subset(data,year==2000, select="stname")
+par(mfrow=c(1,2))
+errbar(xlabels$stname[1:25], mean[1:25], yplus=mean[1:25]+1.96*sd[1:25], yminus=mean[1:25]-1.96*sd[1:25], ylim=c(-10,10))	# this comes out of the Hmisc pkg
+errbar(xlabels$stname[26:50], mean[26:50], yplus=mean[26:50]+1.96*sd[26:50], yminus=mean[26:50]-1.96*sd[26:50], ylim=c(-10,10))
+
+
+# What would happen if the panels had different numbers of observations?
+randsel<-runif(length(murder))
+data.dropped<-subset(data, randsel>=.65)
+detach(data)
+attach(data.dropped)
+summary(stfips)
+# per capita police spending, state + local
+policePC = policeex1/totalpop
+# per capita welfare spending, state + local
+welfarePC = welfare1/totalpop
+# per capita education spending, state + local
+edspendPC = edspend1/totalpop
+# log population
+logpop = log(totalpop)
+# log per capita income
+logpcinc = log(PInccapC)
+model.re.lmer<-lmer(murder~adperI+policePC+edspendPC+logpcinc+logpop+(1 | stfips))
+mean<-unlist(ranef(model.re.lmer)$stfips)
+sd<-unlist(se.ranef(model.re.lmer)$stfips)
+xlabels=subset(data,year==2000, select="stname")
+par(mfrow=c(1,2))
+errbar(xlabels$stname[1:25], mean[1:25], yplus=mean[1:25]+1.96*sd[1:25], yminus=mean[1:25]-1.96*sd[1:25], ylim=c(-10,10))	# this comes out of the Hmisc pkg
+errbar(xlabels$stname[26:50], mean[26:50], yplus=mean[26:50]+1.96*sd[26:50], yminus=mean[26:50]-1.96*sd[26:50], ylim=c(-10,10))
+detach(data.dropped)
+
+data$region<-as.factor(data$region)  # convert the region variable into a factor
+attach(data)
+# per capita police spending, state + local
+policePC = policeex1/totalpop
+# per capita welfare spending, state + local
+welfarePC = welfare1/totalpop
+# per capita education spending, state + local
+edspendPC = edspend1/totalpop
+# log population
+logpop = log(totalpop)
+# log per capita income
+logpcinc = log(PInccapC)
+
+#  Let's check out a basic hierarchical specification. We may, for example, believe that regions of the country share
+#  a common murder rate (that comes out of a normal distribution with mean zero, etc.), and that inside of each region
+#  there are further state-specific effects that come out of a common distribution (with mean = the regional mean).
+
+levels(region)  # show what regions are coded here
+model.re.lmer.hier<-lmer(murder~adperI+policePC+edspendPC+logpcinc+logpop+(1 | region)+(1 | stfips))
+summary(model.re.lmer.hier)
+
+mean.reg<-unlist(ranef(model.re.lmer.hier)$region)
+sd.reg<-unlist(se.ranef(model.re.lmer.hier)$region)
+mean.stef<-unlist(ranef(model.re.lmer.hier)$stfips)
+sd.stef<-unlist(se.ranef(model.re.lmer.hier)$stfips)
+
+# plot the state effects
+xlabels=rownames(ranef(model.re.lmer.hier)$stfips)
+par(mfrow=c(1,3))
+errbar(xlabels[1:25], mean.stef[1:25], yplus=mean.stef[1:25]+1.96*sd.stef[1:25], yminus=mean.stef[1:25]-1.96*sd.stef[1:25], ylim=c(-10,10))	# this comes out of the Hmisc pkg
+errbar(xlabels[26:50], mean.stef[26:50], yplus=mean.stef[26:50]+1.96*sd.stef[26:50], yminus=mean.stef[26:50]-1.96*sd.stef[26:50], ylim=c(-10,10))
+
+# plot the region effects
+#par(mfrow=c(1,1))
+xlabels=rownames(ranef(model.re.lmer.hier)$region)
+errbar(xlabels, mean.reg, yplus=mean.reg+1.96*sd.reg, yminus=mean.reg-1.96*sd.reg, ylim=c(-5,5))	# this comes out of the Hmisc pkg
+
+
+# What happens if we set up a model with non-hierarchical mixed effects?
+model.re.lmer.mix<-lmer(murder~adperI+policePC+edspendPC+logpcinc+logpop+(1 | year)+(1 | stfips))
+summary(model.re.lmer.mix)
+
+# Let's presume that the effect of education per-capita spending might vary according to state
+# this is a model with varying intercepts AND varying coefficients where the two 
+# are correlated with each other
+model.re.lmer.int<-lmer(murder~adperI+policePC+edspendPC+logpcinc+logpop+(1+edspendPC | stfips))
+summary(model.re.lmer.int)
+
+
+# Let's plot all the slopes for different states the way we plotted the intercepts before
+xlabels=rownames(ranef(model.re.lmer.int)$stfips)
+slopes<-ranef(model.re.lmer.int)$stfips[,2]+fixef(model.re.lmer.int)[4]
+ses<-se.ranef(model.re.lmer.int)$stfips[,2]
+par(mfrow=c(1,2))
+errbar(xlabels[1:25], slopes[1:25], yplus=slopes[1:25]+1.96*ses[1:25], yminus=slopes[1:25]-1.96*ses[1:25], ylim=c(-10,10))	# this comes out of the Hmisc pkg
+abline(v=0, lty=2)
+errbar(xlabels[26:50], slopes[26:50], yplus=slopes[26:50]+1.96*ses[26:50], yminus=slopes[26:50]-1.96*ses[26:50], ylim=c(-10,10))
+abline(v=0, lty=2)
+
+
+# this is a model with varying intercepts AND varying coefficients, where the intercept
+# and coefficient effects are NOT correlated with each other
+model.re.lmer.int<-lmer(murder~adperI+policePC+edspendPC+logpcinc+logpop+(1 | stfips) + (0 +edspendPC | stfips))
+summary(model.re.lmer.int)
