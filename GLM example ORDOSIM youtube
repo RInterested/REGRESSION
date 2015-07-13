@@ -1,3 +1,4 @@
+##SOURCE: unknown
 ##Example of Fitting a Linear Model to Binomial Data
 
 norg <- c(10,15,18,12,14,22,8,3)
