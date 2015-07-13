@@ -9,7 +9,7 @@
 install.packages(c("pcse","plm","Hmisc","lme4","arm"), dep=T)
 
 library(foreign)
-library(pcse)	# a package enabling the estimation of Panel-Corrected Standard Errors
+library(pcse)  # a package enabling the estimation of Panel-Corrected Standard Errors
 library(plm)	# the panel linear models library.
 library(Hmisc)
 library(lme4)	# linear mixed effects models package
@@ -50,30 +50,56 @@ for(m in 1:1000){ # We'll do the following 1,000 times
   for(i in 1:N){ # Number of units
     
     for(j in 1:T){ # Number of time points
-    
-      k<-k+1 # k increases by 1 with every pass.
+      
+      k <- k + 1 # k increases by 1 with every pass.
       # on the first pass it is 1 = 0 + 1.
       
-      unit[k]<-i #i only goes up to 20, and each pass the unit
+      unit[k] <- i #i only goes up to 20, and each pass the unit
       # on which j is working will be included in the vector
       # so each N will appear T = 20
-      X[k]<-rnorm(1, mean=unit.effect[i], sd=1)
-      #x will be correlated with the unit.effect - unit heterogenity
-      y[k]<-1+0.25*X[k] + unit.effect[i] + rnorm(1,mean=0,sd=2)
+      X[k] <- rnorm(1, mean = unit.effect[i], sd=1)
+      
+      # x will be correlated with the unit.effect - unit heterogenity
+      # so the question is how much is this going to bias the coefficients
+      # when using lmer....
+      
+      y[k] <- 1 + 0.25 * X[k] + unit.effect[i] + rnorm(1,mean=0,sd=2)
+      
       # y for that observation will be 1/4 X
-      # plus noise. The unit effect changes the intercept. 
+      # plus noise. The unit effect changes the intercept:
+      # This is a simple RANDOM INTERCEPT MODEL.  
     }
   }
   
-  model.re.lmer<-lmer(y ~ X + (1 | unit))
-  model.fe<-lm(y ~ X + as.factor(unit))
+  # Example of a single simulation (of 1,000):
+  # data <- cbind(unit, X, y)
+  # head(data)
+  #     unit         X          y
+  #[1,]    1 0.1950075 0.01198936
+  #[2,]    1 1.1354057 4.82385351
+  # ...
+  #tail(data)
+  #[400,]   20 1.5876215 0.8430520
   
-  beta.hlm[m]<-fixef(model.re.lmer)[2]
-  beta.fe[m]<-coef(model.fe)[2]
+  # we run a RANDOM EFFECTS MODEL with twenty intercepts and one slope, which is
+  # fixef(model.re.lmer)[2]
   
-  se.hlm[m]<-sqrt(vcov(model.re.lmer)[2,2])
-  se.fe[m]<-sqrt(vcov(model.fe)[2,2])
-
+  model.re.lmer <- lmer(y ~ X + (1 | unit))
+  
+  # and a FIXED EFFECTS MODEL which entails dummy coding with 20 intercepts and one 
+  # slope, which is coef(model.fe)[2]
+  
+  model.fe <- lm(y ~ X + as.factor(unit))
+  
+  #So these are the slopes - we know that the actual slope is 0.25...
+  
+  beta.hlm[m] <- fixef(model.re.lmer)[2]
+  beta.fe[m] <- coef(model.fe)[2]
+  
+  ## The variance of the slope is located in the position [2,2] of the vcov matrix:
+  se.hlm[m] <- sqrt(vcov(model.re.lmer)[2,2])
+  se.fe[m] <- sqrt(vcov(model.fe)[2,2])
+  
 }
 
 plot(X, rep(unit.effect, each=T))
