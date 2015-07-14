@@ -109,11 +109,13 @@ abline(h=0.25, lty=2)
 
 boxplot(se.hlm, se.fe, names=c("HLM", "FE"))
 
-sum(beta.hlm-1.96*se.hlm<=0)
-sum(beta.fe-1.96*se.fe<=0)
+## How many times in these 1,000 simulations do we fail to reject Ho even though
+## we set it up so that H1 is true (beta is 0.25 or 1/4)?
+sum(beta.hlm - 1.96 * se.hlm <= 0)
+sum(beta.fe - 1.96 * se.fe <= 0)
 
 
-
+## Now doing the same with actually a zero slope - i.e. Ho is true:
 
 
 for(m in 1:1000){
@@ -135,8 +137,6 @@ for(m in 1:1000){
       y[k]<-1+0*X[k]+unit.effect[i]+rnorm(1,mean=0,sd=2)
       
     }
-    
-    
   }
   
   model.re.lmer<-lmer(y~X+(1 | unit))
@@ -156,14 +156,14 @@ abline(h=2, lty=2)
 boxplot(se.hlm, se.fe, names=c("HLM", "FE"))
 abline(h=2, lty=2)
 
-sum(beta.hlm-1.96*se.hlm>=0 | beta.hlm+1.96*se.hlm<=0)
-sum(beta.fe-1.96*se.fe>=0 | beta.fe+1.96*se.fe<=0)
+How many times do we reject the Ho even though it is true?
 
+sum(beta.hlm - 1.96 * se.hlm >= 0 | beta.hlm + 1.96 * se.hlm <= 0)
 
+## 1.96 * se.hlm will always be positive! So this assesses if beta.htm is larger
+## in absolute values than 1.96 * se.hlm.
 
-
-
-
+sum(beta.fe - 1.96 * se.fe >= 0 | beta.fe + 1.96 * se.fe <= 0)
 
 
 read.dta("lecture10.dta")->data     # This is the same data we used for Lecture 9.
