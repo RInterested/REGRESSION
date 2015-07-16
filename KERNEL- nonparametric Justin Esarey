@@ -1,0 +1,354 @@
+#http://jee3.web.rice.edu/nonparametrics-lecture.r
+
+#################################################
+# demonstration of parametric density estimation
+#################################################
+
+rm(list=ls())
+
+# it works well
+set.seed(123456)
+x<-rnorm(1000, mean=2.1, sd=1)
+
+x.test<-seq(from=-2, to=5, by=0.1)
+x.fit<-dnorm(x.test, mean=mean(x), sd=sd(x))
+x.true<-dnorm(x.test, mean=2.1, sd=1)
+bias<-x.fit-x.true
+
+plot(bias~x.test, type="l")
+plot(x.fit~x.test, type="l", ylim=c(0, 0.55))
+lines(x.true~x.test, lty=2)
+legend("topleft", lty=c(1,2), legend=c("estimate", "true density"))
+
+
+# it works less well
+rm(list=ls())
+
+set.seed(123456)
+x<-rlogis(1000, location=0.5, scale=1.5)
+
+x.test<-seq(from=-8, to=8, by=0.1)
+x.fit<-dnorm(x.test, mean=mean(x), sd=sd(x))
+x.true<-dlogis(x.test, location=0.5, scale=1.5)
+bias<-x.fit-x.true
+
+plot(bias~x.test, type="l")
+plot(x.fit~x.test, type="l", ylim=c(0, 0.17))
+lines(x.true~x.test, lty=2)
+legend("topleft", lty=c(1,2), legend=c("estimate", "true density"))
+
+
+# it's horrible
+rm(list=ls())
+
+set.seed(123456)
+x<-runif(1000, min=-1, max=2)
+
+x.test<-seq(from=-2, to=3, by=0.1)
+x.fit<-dnorm(x.test, mean=mean(x), sd=sd(x))
+x.true<-dunif(x.test, min=-1, max=2)
+bias<-x.fit-x.true
+
+plot(bias~x.test, type="l")
+plot(x.fit~x.test, type="l", ylim=c(0, 0.55))
+lines(x.true~x.test, lty=2)
+legend("topleft", lty=c(1,2), legend=c("estimate", "true density"))
+
+
+
+#################################################
+# nonparametric density estimation
+#################################################
+
+rm(list=ls())
+set.seed(123456)
+
+# mixture of normals
+x<-rnorm(500, mean=1, sd=0.5)
+x<-c(x, rnorm(500, mean=2.75, sd=0.5))
+
+# the true density
+x.test<-seq(from=-2, to=5, by=0.1)
+fx<-0.5*dnorm(x.test, mean=1, sd=0.5)+0.5*dnorm(x.test, mean=2.75, sd=0.5)
+plot(fx~x.test, type="l")
+
+
+# start with histograms; narrow binwidths
+hist(x, breaks=6, freq=F)
+lines(fx~x.test, lty=2)
+
+hist(x, breaks=10, freq=F)
+lines(fx~x.test, lty=2)
+
+hist(x, breaks=20, freq=F)
+lines(fx~x.test, lty=2)
+
+hist(x, breaks=40, freq=F)
+lines(fx~x.test, lty=2)
+
+hist(x, breaks=100, freq=F)
+lines(fx~x.test, lty=2)
+
+
+# kernel density estimates; play with parameters
+plot(density(x, bw=0.5))
+lines(fx~x.test, lty=2)
+
+plot(density(x, bw=0.3))
+lines(fx~x.test, lty=2)
+
+plot(density(x, bw=0.1))
+lines(fx~x.test, lty=2)
+
+plot(density(x, bw=0.05))
+lines(fx~x.test, lty=2)
+
+plot(density(x))
+lines(fx~x.test, lty=2)
+
+plot(density(x, kernel="rectangular"))
+lines(fx~x.test, lty=2)
+
+plot(density(x, kernel="triangular"))
+lines(fx~x.test, lty=2)
+
+plot(density(x, kernel="epanechnikov"))
+lines(fx~x.test, lty=2)
+
+
+
+
+
+
+######################################
+# multidimensional density estimation
+######################################
+
+rm(list=ls())
+set.seed(123456)
+library(ggplot2)
+library(mvtnorm)
+library(KernSmooth)
+
+
+# generate (correlated) multivariate normal data
+Sigma<-matrix(data=c(1, 0.3, 0.3, 1), nrow=2, ncol=2)
+X<-as.data.frame(rmvnorm(1000, mean=c(0,0), sigma=Sigma))
+
+
+# two-dimensional histogram
+p <- ggplot(X, aes(V1, V2)) 
+p <- p + stat_bin2d(bins = 20) + labs(x = "X", y = "Z")
+p
+
+
+# two-dimensional kernel density estimate
+?bkde2D
+z <- bkde2D(X, .5)
+persp(z$fhat, theta=0, phi=20, xlab="X", ylab="Z", zlab="f(X,Z)")
+persp(z$fhat, theta=45, phi=20, xlab="X", ylab="Z", zlab="f(X,Z)")
+persp(z$fhat, theta=90, phi=20, xlab="X", ylab="Z", zlab="f(X,Z)")
+
+persp(z$fhat, theta=0, phi=45, xlab="X", ylab="Z", zlab="f(X,Z)")
+persp(z$fhat, theta=45, phi=45, xlab="X", ylab="Z", zlab="f(X,Z)")
+persp(z$fhat, theta=90, phi=45, xlab="X", ylab="Z", zlab="f(X,Z)")
+
+
+# level curves of a 2D kernel density plot
+??kde2d
+ggplot(X,aes(V1,V2))+geom_density2d()+labs(x = "X", y = "Z")
+
+
+
+
+####################################
+# Nadaraya-Watson kernel regression
+####################################
+
+rm(list=ls())
+set.seed(123456)
+
+x<-runif(1000, min=-2*pi, max=2*pi)
+y<-sin(x)+rnorm(1000, mean=0, sd=0.3)
+
+lo.mod<-loess(y~x, degree=0)
+x.plot<-seq(from=-6, to=6, by=0.1)
+y.fit<-predict(lo.mod, newdata=x.plot)
+
+plot(y~x, col="gray")
+lines(y.fit~x.plot, type="l")
+
+
+
+
+lo.mod<-loess(y~x, degree=0, span=0.1)
+x.plot<-seq(from=-6, to=6, by=0.1)
+y.fit<-predict(lo.mod, newdata=x.plot)
+
+plot(y~x, col="gray")
+lines(y.fit~x.plot, type="l")
+
+
+
+lo.mod<-loess(y~x, degree=0, span=0.025)
+x.plot<-seq(from=-6, to=6, by=0.1)
+y.fit<-predict(lo.mod, newdata=x.plot)
+
+plot(y~x, col="gray")
+lines(y.fit~x.plot, type="l")
+
+
+
+
+
+rm(list=ls())
+set.seed(123456)
+
+x<-runif(1000, min=-2*pi, max=2*pi)
+y<-sin(x)+rnorm(1000, mean=0, sd=0.3)
+
+library(np)
+# include std errors
+bw <- npregbw(formula=y~x, bws=0.25, bwtype="fixed", bandwidth.compute=F)
+model <- npreg(bws = bw, gradients = TRUE)
+plot(model, plot.errors.method = "asymptotic", plot.errors.style = "band", ylim=c(-2, 2))
+points(y~x, col="gray")
+
+
+plot(y~x, col="gray")
+plot.out<-plot(model, plot.errors.method = "asymptotic", plot.errors.style = "band", plot.behavior="data")
+
+y.eval <- fitted(plot.out$r1)
+x.eval <- plot.out$r1$eval[,1]
+y.se <- se(plot.out$r1)
+y.lower.ci <- y.eval + y.se[,1]
+y.upper.ci <- y.eval + y.se[,2]
+lines(y.eval~x.eval)
+lines(y.upper.ci~x.eval, lty=2)
+lines(y.lower.ci~x.eval, lty=2)
+
+
+
+
+
+
+
+
+
+###############################################
+# local linear and local quadratic kernel reg.
+###############################################
+
+
+rm(list=ls())
+set.seed(123456)
+
+x<-runif(1000, min=-2*pi, max=2*pi)
+y<-sin(x)+rnorm(1000, mean=0, sd=0.3)
+
+
+lo.mod<-loess(y~x, degree=0, span=0.2)
+x.plot<-seq(from=-6, to=6, by=0.1)
+y.fit<-predict(lo.mod, newdata=x.plot)
+
+plot(y~x, col="gray")
+lines(y.fit~x.plot, type="l")
+
+lo.mod<-loess(y~x, degree=1, span=0.2)
+x.plot<-seq(from=-6, to=6, by=0.1)
+y.fit<-predict(lo.mod, newdata=x.plot)
+
+lines(y.fit~x.plot, col="red")
+
+
+lo.mod<-loess(y~x, degree=2, span=0.2)
+x.plot<-seq(from=-6, to=6, by=0.1)
+y.fit<-predict(lo.mod, newdata=x.plot)
+
+lines(y.fit~x.plot, col="blue")
+
+
+
+
+
+
+
+
+
+
+###############################################
+# multidimensional kernel density estimation
+###############################################
+
+
+rm(list=ls())
+library(mvtnorm)
+set.seed(123456)
+
+x<-runif(1000, min=-2.1, max=2.1)
+z<-runif(1000, min=-2.1, max=2.1)
+y<-dmvnorm(cbind(x,z), sigma=diag(2)*0.3)+rnorm(1000, mean=0, sd=0.3)
+
+lo.mod<-loess(y~x+z, degree=1, span=0.2)
+x<-seq(from=-2, to=2, by=0.1)
+z<-seq(from=-2, to=2, by=0.1)
+dat<-expand.grid(x,z)
+y.fit<-predict(lo.mod, newdata=as.matrix(dat))
+y.fit<-matrix(data=y.fit, nrow=length(x), ncol=length(z))
+
+persp(x, z, y.fit, phi=30, theta=20)
+persp(x, z, y.fit, phi=30, theta=80)
+persp(x, z, y.fit, phi=30, theta=160)
+
+
+
+
+
+
+####################################
+# GCV/AIC calculation
+####################################
+
+
+rm(list=ls())
+set.seed(123456)
+
+# use Michael Friendly's function for calculating AIC/GCV from a loess
+loess.aic <- function (x) {
+  
+  # Written by Michael Friendly 
+  # http://tolstoy.newcastle.edu.au/R/help/05/11/15899.html
+  
+  if (!(inherits(x,"loess"))) stop("Error: argument must be a loess object")
+  # extract values from loess object
+  span <- x$pars$span
+  n <- x$n
+  traceL <- x$trace.hat
+  sigma2 <- sum( x$residuals^2 ) / (n-1)
+  delta1 <- x$one.delta
+  delta2 <- x$two.delta
+  enp <- x$enp
+  
+  aicc <- log(sigma2) + 1 + 2* (2*(traceL+1)) / (n-traceL-2)
+  aicc1<- n*log(sigma2) + n* ( (delta1/delta2)*(n+enp)/(delta1^2/delta2)-2 )
+  gcv  <- n*sigma2 / (n-traceL)^2
+  
+  result <- list(span=span, aicc=aicc, aicc1=aicc1, gcv=gcv)
+  return(result)
+  
+}
+
+
+x<-runif(1000, min=-2*pi, max=2*pi)
+y<-sin(x)+rnorm(1000, mean=0, sd=0.3)
+
+lo.mod<-loess(y~x, degree=2, span=0.5)
+loess.aic(lo.mod)
+lo.mod<-loess(y~x, degree=2, span=0.4)
+loess.aic(lo.mod)
+lo.mod<-loess(y~x, degree=2, span=0.3)
+loess.aic(lo.mod)
+lo.mod<-loess(y~x, degree=2, span=0.2)
+loess.aic(lo.mod)
+lo.mod<-loess(y~x, degree=2, span=0.1)
+loess.aic(lo.mod)
