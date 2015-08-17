@@ -65,7 +65,7 @@ exp(cbind(COEF=coef(POIS),confint(POIS)))
 ## As expected, the CI for Age do not include 1 (i.e. it's a statistically 
 ## significant factor in the regression),
 ## and we can expect a 3% increase in the number of post-procedure interventions
-## in patients treated with A.
+## with Age.
 ## Also as per design, the cause of stenosis makes no difference, or the approach.
 ## And Treatment B is indeed better, because it results in only 
 ## 66% of the number or repeat interventions compared to treatment A.
