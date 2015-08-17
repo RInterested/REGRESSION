@@ -1,3 +1,5 @@
+From youtube video https://youtu.be/HntUY8SsYZg
+
 library(gsheet)
 data <- read.csv(text = 
                    gsheet2text('https://docs.google.com/spreadsheets/d/1g2_poay64I5mI3tF_V8g14mQt4iUIHTYDTIn6z0AYbU/edit?usp=sharing',
@@ -27,3 +29,14 @@ exp(cbind(COEF=coef(pm1),confint(pm1)))
 pm1 <- glm(Job ~ Race + Income, family='poisson', data=data)
 pm1
 exp(cbind(COEF=coef(pm1),confint(pm1)))
+
+
+##This can be applied to the need for additional interventions after a given treatment:
+
+df <- data.frame(rpois(1000,1),sample(c("A","B"),1000, replace=T))
+colnames(df) <- c("Post_Treat_Interventions","Treatment")
+head(df)
+
+POIS <-glm(Post_Treat_Interventions~Treatment,family="poisson",data=df)
+
+exp(cbind(COEF=coef(POIS),confint(POIS)))
