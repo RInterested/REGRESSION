@@ -33,10 +33,39 @@ exp(cbind(COEF=coef(pm1),confint(pm1)))
 
 ##This can be applied to the need for additional interventions after a given treatment:
 
-df <- data.frame(rpois(1000,1),sample(c("A","B"),1000, replace=T))
-colnames(df) <- c("Post_Treat_Interventions","Treatment")
-head(df)
+data <- data.frame(c(rep(5:6,50), rpois(900,1)),
+            c(rep("A",100),sample(c("A","B"),900, replace=T)),
+            c(sample(c("HIVD","stenosis"),500, replace=T)),
+            c(sample(c("caud.","interlam.","transforam."),1000, replace=T)),
+            c(round(seq(from=100, to=50, length.out = 1000),digits = 1)))
+colnames(data) <- c("Post_Treat_Interventions","Treatment","Diagnosis",
+                    "Approach", "Age")
 
-POIS <-glm(Post_Treat_Interventions~Treatment,family="poisson",data=df)
+## With this set up the first 100 subjects received treatment A
+## and had high number of post-treatment interventions (5 or 6)
+## and were also older,
+## guaranteing that they will be significant factors in the following
+## Poisson regression:
+
+head(data)
+
+POIS <-glm(Post_Treat_Interventions~Treatment+Diagnosis+Approach+Age,
+           family="poisson",data=data)
 
 exp(cbind(COEF=coef(POIS),confint(POIS)))
+
+#COEF     2.5 %    97.5 %
+#  (Intercept)         0.1415239 0.1002669 0.1985416
+#TreatmentB            0.7305948 0.6513643 0.8182657
+#Diagnosisstenosis     0.9603871 0.8658282 1.0650717
+#Approachinterlam.     1.0214885 0.9014026 1.1572253
+#Approachtransforam.   0.9675647 0.8532679 1.0968184
+#Age                   1.0319382 1.0279856 1.0359522
+
+## As expected, the CI for Age do not include 1 (i.e. it's a statistically 
+## significant factor in the regression),
+## and we can expect a 3% increase in the number of post-procedure interventions
+## in patients treated with A.
+## Also as per design, the cause of stenosis makes no difference, or the approach.
+## And Treatment B is indeed better, because it results in only 
+## 66% of the number or repeat interventions compared to treatment A.
