@@ -1,0 +1,29 @@
+library(gsheet)
+data <- read.csv(text = 
+                   gsheet2text('https://docs.google.com/spreadsheets/d/1g2_poay64I5mI3tF_V8g14mQt4iUIHTYDTIn6z0AYbU/edit?usp=sharing',
+                               format ='csv'))
+head(data)
+data <- within(data, {Race <- factor(Race)})
+str(data)
+
+pm1 <- glm(Job ~ Race, family='poisson', data=data)
+pm1
+exp(cbind(COEF=coef(pm1),confint(pm1)))
+
+##INTERPRETATION:
+
+#The comparison is with Race1 - not displayed.
+#The confidence interval for Race3 includes 1 (and exp(0) = 1); hence
+#it is NOT significant.
+#Race2 is significant, because CI does not include 1.
+#The coefficient for Race2 is 4.9.
+#So compared to Race1, a person in Race2 will get a job offer 4.9x 
+#Job count for Race2 is 4.9 more than Race1.
+
+
+
+# The results are different if we include other predictors:
+
+pm1 <- glm(Job ~ Race + Income, family='poisson', data=data)
+pm1
+exp(cbind(COEF=coef(pm1),confint(pm1)))
