@@ -33,11 +33,12 @@ exp(cbind(COEF=coef(pm1),confint(pm1)))
 
 ##This can be applied to the need for additional interventions after a given treatment:
 
-data <- data.frame(c(rep(5:6,50), rpois(900,1)),
-            c(rep("A",100),sample(c("A","B"),900, replace=T)),
-            c(sample(c("HIVD","stenosis"),500, replace=T)),
-            c(sample(c("caud.","interlam.","transforam."),1000, replace=T)),
-            c(round(seq(from=100, to=50, length.out = 1000),digits = 1)))
+set.seed(0)
+data <- data.frame(c(rep(4,250), rpois(250,3),rpois(500,2)),
+                   c(rep("A",500),rep("B",500)),
+                   c(sample(c("HIVD","stenosis"),1000, replace=T)),
+                   c(sample(c("caud.","interlam.","transforam."),1000, replace=T)),
+                   c(round(seq(from=100, to=50, length.out = 1000),digits = 1)))
 colnames(data) <- c("Post_Treat_Interventions","Treatment","Diagnosis",
                     "Approach", "Age")
 
@@ -54,18 +55,52 @@ POIS <-glm(Post_Treat_Interventions~Treatment+Diagnosis+Approach+Age,
 
 exp(cbind(COEF=coef(POIS),confint(POIS)))
 
-#COEF     2.5 %    97.5 %
-#  (Intercept)         0.1415239 0.1002669 0.1985416
-#TreatmentB            0.7305948 0.6513643 0.8182657
-#Diagnosisstenosis     0.9603871 0.8658282 1.0650717
-#Approachinterlam.     1.0214885 0.9014026 1.1572253
-#Approachtransforam.   0.9675647 0.8532679 1.0968184
-#Age                   1.0319382 1.0279856 1.0359522
+#                         COEF       2.5 %              97.5 %
+#(Intercept)         1.4414700      0.9080323          2.283861
+#TreatmentB          0.7403763      0.6363773          0.861333
+#Diagnosisstenosis   0.9611561      0.8916945          1.035883
+#Approachinterlam.   0.9537961      0.8715821          1.043625
+#Approachtransforam. 0.9500726      0.8668225          1.041084
+#Age                 1.0107853      1.0055561          1.016048
 
-## As expected, the CI for Age do not include 1 (i.e. it's a statistically 
-## significant factor in the regression),
-## and we can expect a 3% increase in the number of post-procedure interventions
-## with Age.
+## As expected, the CI for Age do not include 1 (i.e. it's a statistically significant factor in the regression),
+## and we can expect a 1% increase in the number of post-procedure interventions with Age.
 ## Also as per design, the cause of stenosis makes no difference, or the approach.
 ## And Treatment B is indeed better, because it results in only 
-## 66% of the number or repeat interventions compared to treatment A.
+## 74% of the number or repeat interventions compared to treatment A.
+
+
+## As a word of caution, check the residual deviance against the degrees of freedom in...
+
+summary(POIS)
+
+#Coefficients:
+#                     Estimate Std. Error z value Pr(>|z|)    
+#(Intercept)          0.365663   0.235280   1.554    0.120    
+#TreatmentB          -0.300597   0.077214  -3.893 9.90e-05 ***
+#Diagnosisstenosis   -0.039618   0.038232  -1.036    0.300    
+#Approachinterlam.   -0.047305   0.045948  -1.030    0.303    
+#Approachtransforam. -0.051217   0.046723  -1.096    0.273    
+#Age                  0.010728   0.002648   4.052 5.09e-05 ***
+#---
+#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#(Dispersion parameter for poisson family taken to be 1)
+
+#    Null deviance: 1025.76  on 999  degrees of freedom
+#Residual deviance:  791.69  on 994  degrees of freedom
+#AIC: 3465.1
+
+
+## And plot the residuals:
+
+plot(POIS$fitted, POIS$residuals)
+
+## If after enetering the actual data the model is not a good fit, consider a quasi Poisson
+## or a negative binomial. As in:
+
+QPOIS <-glm(Post_Treat_Interventions~Treatment+Diagnosis+Approach+Age,
+           family="quasipoisson",data=data)
+
+plot(POIS$fitted, POIS$residuals)
+summary(QPOIS)
