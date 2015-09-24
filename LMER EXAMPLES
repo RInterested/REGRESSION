@@ -2,13 +2,28 @@
 
 # V1 ~ (1|V2) + V3 WITH V3 CONTINUOUS:
 
-data <- read.csv(text = 
+
+
+recall <- read.csv(text = 
       gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
       format ='csv'))
-data$Time <- as.factor(data$Time)
-head(data)
-library(lme4)
+      
+recall$Time <- as.factor(recall$Time)
 
-lmer(Recall_Rate ~ (1|Subject, data = data)
+library(lme4)
+fit <- lmer(Recall_Rate ~  Caffeine_Intake + (1|Subject), data = recall)
+coefficients(fit)
+fit
+
+
+politeness=
+  read.csv("http://www.bodowinter.com/tutorial/politeness_data.csv")
+
+politeness.model = lmer(frequency ~ attitude +
+                          (1|subject), data=politeness)
+coefficients(politeness.model)
+
+
+
 
 P1 (global intercept): 
