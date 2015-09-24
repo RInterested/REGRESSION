@@ -1,0 +1,14 @@
+# http://stats.stackexchange.com/a/13173/67822
+
+# V1 ~ (1|V2) + V3 WITH V3 CONTINUOUS:
+
+data <- read.csv(text = 
+      gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
+      format ='csv'))
+data$Time <- as.factor(data$Time)
+head(data)
+library(lme4)
+
+lmer(Recall_Rate ~ (1|Subject, data = data)
+
+P1 (global intercept): 
