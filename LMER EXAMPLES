@@ -2,28 +2,42 @@
 
 # V1 ~ (1|V2) + V3 WITH V3 CONTINUOUS:
 
-
-
+library(gsheet)
 recall <- read.csv(text = 
-      gsheet2text('https://drive.google.com/open?id=1iVDJ_g3MjhxLhyyLHGd4PhYhsYW7Ob0JmaJP8MarWXU',
-      format ='csv'))
-      
-recall$Time <- as.factor(recall$Time)
-
-library(lme4)
-fit <- lmer(Recall_Rate ~  Caffeine_Intake + (1|Subject), data = recall)
+gsheet2text('https://docs.google.com/spreadsheets/d/1FPaU-UoWT95wic1PYiWdukuhKwuLxyDPGeedv64VYvY/edit?usp=sharing',
+          format ='csv'))
+head(recall)
+require(lme4)
+fit <- lmer(Recall_Rate ~ (1|Subject) + Caffeine_Intake, data = recall)
 coefficients(fit)
 fit
 
-
-politeness=
-  read.csv("http://www.bodowinter.com/tutorial/politeness_data.csv")
-
-politeness.model = lmer(frequency ~ attitude +
-                          (1|subject), data=politeness)
-coefficients(politeness.model)
+par(bg="gray90")
+plot(Recall_Rate ~ Subject, data = recall, col=c("wheat", "wheat1", "wheat2",
+                  "wheat3", "wheat4"))
 
 
-
+library(ggplot2)
+p <- ggplot(recall, aes(x = Caffeine_Intake, y = Recall_Rate, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit)),size=1) +
+  theme_bw(base_size=22) 
+print(p)
 
 P1 (global intercept): 
+Fixed Effects:
+    (Intercept) 
+        54.5322   
+
+P2: Random effect intercepts for V2 (i.e. for each level of V2, that level's intercept's deviation from the global intercept)
+$Subject
+       (Intercept) Caffeine_Intake
+Jason     56.06593     -0.01419912
+Jim       50.89693     -0.01419912
+Ron       42.61979     -0.01419912
+Tina      60.98722     -0.01419912
+Victor    62.09119     -0.01419912
+
+P3: A single global estimate for the effect (slope) of V3
+Caffeine_Intake
+-0.01419912
