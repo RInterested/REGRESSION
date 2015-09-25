@@ -1,16 +1,20 @@
 # http://stats.stackexchange.com/a/13173/67822
 
-# V1 ~ (1|V2) + V3 WITH V3 CONTINUOUS:
+#V1 ~ (1|V2) + V3
 
 library(gsheet)
 recall <- read.csv(text = 
 gsheet2text('https://docs.google.com/spreadsheets/d/1FPaU-UoWT95wic1PYiWdukuhKwuLxyDPGeedv64VYvY/edit?usp=sharing',
           format ='csv'))
 head(recall)
+
+# V1 = Recall_Rate; V2 = Subject; V3 = Caffeine Intake
+
 require(lme4)
 fit <- lmer(Recall_Rate ~ (1|Subject) + Caffeine_Intake, data = recall)
 coefficients(fit)
 fit
+cov2cor(vcov(fit))
 
 par(bg="gray90")
 plot(Recall_Rate ~ Subject, data = recall, col=c("wheat", "wheat1", "wheat2",
@@ -24,20 +28,64 @@ p <- ggplot(recall, aes(x = Caffeine_Intake, y = Recall_Rate, colour = Subject))
   theme_bw(base_size=22) 
 print(p)
 
-P1 (global intercept): 
-Fixed Effects:
-    (Intercept) 
-        54.5322   
+#PARAMETERS:
 
-P2: Random effect intercepts for V2 (i.e. for each level of V2, that level's intercept's deviation from the global intercept)
-$Subject
-       (Intercept) Caffeine_Intake
-Jason     56.06593     -0.01419912
-Jim       50.89693     -0.01419912
-Ron       42.61979     -0.01419912
-Tina      60.98722     -0.01419912
-Victor    62.09119     -0.01419912
+  # P1 = global intercept
+#Fixed Effects:
+#  (Intercept)  Caffeine_Intake  
+#   54.5322         
 
-P3: A single global estimate for the effect (slope) of V3
-Caffeine_Intake
--0.01419912
+  # P2 = random effects interceps for V2:
+#$Subject
+#         (Intercept) Caffeine_Intake
+#Jason     56.06593     
+#Jim       50.89693     
+#Ron       42.61979     
+#Tina      60.98722     
+#Victor    62.09119     
+
+  # P3 =  single global estimate for the effect (slope) of V3 (Caffeine_Intake):
+
+#   Fixed Effects:
+#  (Intercept)  Caffeine_Intake  
+#               -0.0142 
+#  or
+#         (Intercept) Caffeine_Intake
+#Jason                  -0.01419912
+#Jim                    -0.01419912
+#Ron                    -0.01419912
+#Tina                   -0.01419912
+#Victor                 -0.01419912
+
+
+#V1 ~ (1|V2) + V3 + (0+V3|V2) # Seemingly same as above
+
+fit2 <- lmer(Recall_Rate ~ (1|Subject) + Caffeine_Intake + (0 + Caffeine_Intake|Subject), 
+data = recall)
+coefficients(fit2)
+fit2
+cov2cor(vcov(fit2))
+
+#V1 ~ (1+V3|V2) + V3
+
+fit3 <- lmer(Recall_Rate ~ (1 + Caffeine_Intake|Subject) + Caffeine_Intake, 
+             data = recall)
+coefficients(fit3)
+
+#$Subject
+#       (Intercept) Caffeine_Intake
+# Jason     63.34204    -0.037464691
+# Jim       43.54557     0.051290866
+# Ron       28.15771     0.120280832
+# Tina      62.99163    -0.035893650
+# Victor    56.58025    -0.007148873
+
+
+fit3
+cov2cor(vcov(fit3))
+
+p <- ggplot(recall, aes(x = Caffeine_Intake, y = Recall_Rate, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit3)),size=1) +
+  theme_bw(base_size=22) 
+print(p)
