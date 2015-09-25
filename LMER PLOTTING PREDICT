@@ -1,0 +1,113 @@
+require(gsheet)
+
+data <- read.csv(text = 
+                   gsheet2text('https://docs.google.com/spreadsheets/d/1QgtDcGJebyfW7TJsB8n6rAmsyAnlz1xkT3RuPFICTdk/edit?usp=sharing',
+                               format ='csv'))
+
+head(data)
+
+par(mfrow=c(1,3))
+colors=c("wheat1", "wheat3", "wheat4")
+boxplot(Recall ~ Emotion, data, col = colors, ylab="Recall Rate", xlab = "Emotional Tone")
+boxplot(Recall ~ Auditorium, data, col=colors, xlab = "Auditorium")
+boxplot(Recall ~ Education, data, col=colors, xlab = "Education")
+
+par(mfrow=c(1,1))
+
+require(lme4); require(lmerTest)
+
+# DIFFERENT SUBJECTS AND CONTINUOUS FIXED REGRESSOR:
+
+fit1 <- lmer(Recall ~ (1|Subject) + Caffeine, data = data)
+coefficients(fit1)
+fit1
+
+library(ggplot2)
+p <- ggplot(data, aes(x = Caffeine, y = Recall, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit1)),size=1) 
+print(p)
+
+
+# DIFFERENT SUBJECTS and TIME AND CONTINUOUS REGRESSORS:
+
+fit2 <- lmer(Recall ~ (1|Subject/Time) + Caffeine, data = data)
+coefficients(fit2)
+fit2
+predict(fit2)
+
+library(ggplot2)
+p <- ggplot(data, aes(x = Caffeine, y = Recall, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit2)),size=1) 
+print(p)
+
+
+# REPEATED OBSERVATIONS:
+
+require(lme4); require(lmerTest)
+fit3 <- lmer(Recall ~ Caffeine + Emotion + (1|Subject/Time), data) 
+coefficients(fit3)
+fit3
+
+# 2D Plotting:
+
+library(ggplot2)
+p <- ggplot(data, aes(x = Caffeine, y = Recall, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit3)),size=1, arrow=arrow()) 
+print(p)
+
+
+# 3D Plotting:
+
+
+library(scatterplot3d)
+# http://www.r-bloggers.com/getting-fancy-with-3-d-scatterplots/
+
+s3d <- with(data, scatterplot3d(Caffeine, Time, Recall, color = as.numeric(Subject),
+                                type = 'h', pch = 19))
+
+lm <- lm(Recall ~ Caffeine + Time, data)
+s3d$plane3d(lm)
+legend(s3d$xyz.convert(150,5,70), pch = 19,
+       legend = levels(data$Subject), col = seq_along(levels(data$Subject)))
+
+
+library(rgl); library(car); library("RColorBrewer")
+# http://www.r-bloggers.com/choosing-colour-palettes-part-ii-educated-choices/
+# http://stackoverflow.com/questions/14698866/r-3d-plot-with-categorical-colors
+
+colors <- brewer.pal(n = 5, name = "Set1")
+
+scatter3d(x = data$Caffeine, y = data$Recall, z = data$Time, groups = data$Subject,
+          ellipsoid = F, fit = "smooth", grid = F, surface = T, surface.col = colors,
+          xlab = "Caffeine", ylab = "Recall", zlab = "Time")
+rgl.snapshot(filename="Recall_Rate.png", fmt="png")
+
+
+# ALTERNATIVE MODELS:
+
+fit4 <- lmer(Recall ~ Caffeine + Emotion + (1|Auditorium/Subject/Time), data) 
+coefficients(fit4)
+fit4
+predict(fit4)
+
+# 2D Plotting:
+
+library(ggplot2)
+p <- ggplot(data, aes(x = Caffeine, y = Recall, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit4)),size=1, arrow=arrow()) 
+print(p)
+
+# compare to:
+# fit4 <- lmer(Recall ~ Caffeine + Emotion + (1|Auditorim/Subject/Time), data) 
+# fit3 <- lmer(Recall ~ Caffeine + Emotion + (1|Subject/Time), data) 
+
+library(ggplot2)
+p <- ggplot(data, aes(x = Caffeine, y = Recall, colour = Subject)) +
+  geom_point(size=3) +
+  geom_line(aes(y = predict(fit3)),size=1, arrow=arrow()) 
+print(p)
+
