@@ -1,0 +1,12 @@
+d=read.table(text='Farmer Age_yrs Larvae_per_m²
+1        Band       2          1315
+             2        Band       4           725
+             3        Band       6            90
+             4     Fechney       1           520
+             5     Fechney       3           285
+             6     Fechney       9            30
+             7  Mulholland       2           725
+             8  Mulholland       6            20', header=T)
+
+names(d) = c('Farmer', 'Age', 'Larvae'); attach(d); library(lme4); library(lmerTest); fit = lmer(Larvae ~ Age + (1|Farmer));
+summary(fit); anova(fit); rand(fit)
